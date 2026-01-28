@@ -1,0 +1,254 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  videos        Video[]
+  audioFiles    Audio[]
+  textContents  TextContent[]
+  images        Image[]
+  translations  Translation[]
+  summaries     Summary[]
+  seoContents   SEOContent[]
+  socialPosts   SocialPost[]
+  emails        Email[]
+  blogPosts     BlogPost[]
+  marketingCopy MarketingCopy[]
+  scripts       Script[]
+  podcasts      Podcast[]
+  voiceovers    Voiceover[]
+  musicTracks   MusicTrack[]
+}
+
+model Video {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  prompt      String
+  status      String   @default("pending")
+  videoUrl    String?
+  thumbnail   String?
+  duration    Int?
+  style       String?
+  resolution  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Audio {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  prompt      String
+  status      String   @default("pending")
+  audioUrl    String?
+  duration    Int?
+  voice       String?
+  language    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model TextContent {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  prompt      String
+  content     String?
+  status      String   @default("pending")
+  type        String
+  wordCount   Int?
+  tone        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Image {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  prompt      String
+  status      String   @default("pending")
+  imageUrl    String?
+  style       String?
+  resolution  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Translation {
+  id             Int      @id @default(autoincrement())
+  title          String
+  originalText   String
+  translatedText String?
+  sourceLang     String
+  targetLang     String
+  status         String   @default("pending")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model Summary {
+  id           Int      @id @default(autoincrement())
+  title        String
+  originalText String
+  summary      String?
+  length       String
+  status       String   @default("pending")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model SEOContent {
+  id           Int      @id @default(autoincrement())
+  title        String
+  keyword      String
+  content      String?
+  metaTitle    String?
+  metaDesc     String?
+  status       String   @default("pending")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model SocialPost {
+  id        Int      @id @default(autoincrement())
+  title     String
+  platform  String
+  prompt    String
+  content   String?
+  hashtags  String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Email {
+  id        Int      @id @default(autoincrement())
+  title     String
+  type      String
+  prompt    String
+  subject   String?
+  body      String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model BlogPost {
+  id        Int      @id @default(autoincrement())
+  title     String
+  topic     String
+  keywords  String?
+  content   String?
+  excerpt   String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model MarketingCopy {
+  id          Int      @id @default(autoincrement())
+  title       String
+  product     String
+  targetAud   String?
+  content     String?
+  headline    String?
+  callToAction String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Script {
+  id          Int      @id @default(autoincrement())
+  title       String
+  type        String
+  topic       String
+  content     String?
+  duration    Int?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Podcast {
+  id          Int      @id @default(autoincrement())
+  title       String
+  topic       String
+  description String?
+  script      String?
+  audioUrl    String?
+  duration    Int?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Voiceover {
+  id          Int      @id @default(autoincrement())
+  title       String
+  text        String
+  voice       String
+  language    String?
+  audioUrl    String?
+  duration    Int?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model MusicTrack {
+  id          Int      @id @default(autoincrement())
+  title       String
+  genre       String
+  mood        String?
+  prompt      String
+  audioUrl    String?
+  duration    Int?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
