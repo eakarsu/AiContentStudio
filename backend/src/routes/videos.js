@@ -12,13 +12,80 @@ const UPLOADS_DIR = path.join(__dirname, '../../public/uploads');
 // Get all videos for user
 router.get('/', auth, async (req, res) => {
   try {
-    const videos = await req.prisma.video.findMany({
+    const { search, status, sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 20 } = req.query;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    const where = { userId: req.userId };
+    if (status) where.status = status;
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { prompt: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      req.prisma.video.findMany({
+        where,
+        orderBy: { [sortBy]: sortOrder },
+        skip,
+        take: limitNum
+      }),
+      req.prisma.video.count({ where })
+    ]);
+
+    res.json({ items, total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch videos' });
+  }
+});
+
+// Export CSV
+router.get('/export/csv', auth, async (req, res) => {
+  try {
+    const { generateCSV } = require('../utils/export');
+    const items = await req.prisma.video.findMany({
       where: { userId: req.userId },
       orderBy: { createdAt: 'desc' }
     });
-    res.json(videos);
+    const fields = [
+      { label: 'ID', value: 'id' },
+      { label: 'Title', value: 'title' },
+      { label: 'Status', value: 'status' },
+      { label: 'Created', value: 'createdAt' },
+    ];
+    const csv = generateCSV(items, fields.map(f => f.value));
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="videos-export.csv"`);
+    res.send(csv);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch videos' });
+    res.status(500).json({ error: 'Failed to export CSV' });
+  }
+});
+
+// Export PDF
+router.get('/export/pdf', auth, async (req, res) => {
+  try {
+    const { generatePDF } = require('../utils/export');
+    const items = await req.prisma.video.findMany({
+      where: { userId: req.userId },
+      orderBy: { createdAt: 'desc' }
+    });
+    const fields = [
+      { label: 'ID', value: 'id' },
+      { label: 'Title', value: 'title' },
+      { label: 'Status', value: 'status' },
+      { label: 'Created', value: 'createdAt' },
+    ];
+    const pdf = await generatePDF(items, 'Video Export', fields);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="videos-export.pdf"`);
+    res.send(pdf);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to export PDF' });
   }
 });
 
@@ -79,13 +146,21 @@ router.post('/:id/generate', auth, async (req, res) => {
 
     const timestamp = Date.now();
     console.log(`[Video ${video.id}] Step 1/5: Generating script...`);
-    const content = await generateVideoContent(video.prompt, video.style);
+    const rawContent = await generateVideoContent(video.prompt, video.style);
+
+    // Clean up and ensure professional formatting
+    let content = rawContent.trim();
+    if (!content.startsWith('#')) {
+      content = `# Video Concept: ${video.title}\n\n> **Style:** ${video.style} | **Resolution:** ${video.resolution}\n\n---\n\n${content}`;
+    }
+    const wordCount = content.split(/\s+/).length;
+    content += `\n\n---\n*Video: "${video.title}" | Style: ${video.style} | Resolution: ${video.resolution} | ~${wordCount} words*`;
 
     // Generate scene descriptions from script
     console.log(`[Video ${video.id}] Step 2/5: Generating scene descriptions...`);
-    const scenesPrompt = `Based on this video script, create exactly 4 short image descriptions for 4 different scenes. Each description should be a visual scene suitable for AI image generation. Return ONLY 4 lines, one description per line, no numbering or extra text.\n\nScript: ${content.slice(0, 2000)}`;
+    const scenesPrompt = `Based on this video script, create exactly 4 short image descriptions for 4 different scenes. Each description should be a safe, simple visual scene suitable for AI image generation. IMPORTANT: Do NOT describe people in detail, avoid describing body parts, clothing details, or physical actions. Focus on environments, objects, landscapes, abstract concepts, and text overlays instead. Return ONLY 4 lines, one description per line, no numbering or extra text.\n\nScript: ${content.slice(0, 2000)}`;
     const scenesText = await generateText(scenesPrompt, {
-      systemPrompt: 'You create concise visual scene descriptions for image generation. Return exactly 4 lines.',
+      systemPrompt: 'You create concise, safe visual scene descriptions for AI image generation. Focus on environments, objects, and abstract visuals. Avoid describing people in detail. Return exactly 4 lines.',
       maxTokens: 500
     });
     const scenes = scenesText.split('\n').filter(s => s.trim().length > 10).slice(0, 4);
@@ -94,16 +169,40 @@ router.post('/:id/generate', auth, async (req, res) => {
       scenes.push(`${video.prompt}, different angle`);
     }
 
-    // Generate multiple images for scenes
+    // Generate multiple images for scenes (with content filter retry)
     console.log(`[Video ${video.id}] Step 3/5: Generating ${scenes.length} scene images with DALL-E...`);
     const imagePaths = [];
     for (let i = 0; i < scenes.length; i++) {
       console.log(`[Video ${video.id}]   - Scene ${i + 1}/${scenes.length}: "${scenes[i].slice(0, 50)}..."`);
-      const imgResult = await generateImage(
-        `${scenes[i]}. Style: ${video.style || 'professional'}, cinematic, high quality`,
-        { size: '1792x1024', filename: `video_${video.id}_scene${i}_${timestamp}.png` }
-      );
-      imagePaths.push(path.join(UPLOADS_DIR, imgResult.url.replace('/uploads/', '')));
+      try {
+        const imgResult = await generateImage(
+          `${scenes[i]}. Style: ${video.style || 'professional'}, cinematic, high quality`,
+          { size: '1792x1024', filename: `video_${video.id}_scene${i}_${timestamp}.png` }
+        );
+        imagePaths.push(path.join(UPLOADS_DIR, imgResult.url.replace('/uploads/', '')));
+      } catch (imgError) {
+        if (imgError.code === 'content_policy_violation') {
+          console.log(`[Video ${video.id}]   - Scene ${i + 1} blocked by content filter, retrying with safer prompt...`);
+          try {
+            // Retry with a generic safe prompt
+            const safePrompt = `A professional ${video.style || 'modern'} scene related to ${video.title}. Clean, minimal, corporate style with soft lighting and neutral colors.`;
+            const retryResult = await generateImage(safePrompt, {
+              size: '1792x1024',
+              filename: `video_${video.id}_scene${i}_${timestamp}.png`
+            });
+            imagePaths.push(path.join(UPLOADS_DIR, retryResult.url.replace('/uploads/', '')));
+          } catch (retryError) {
+            console.log(`[Video ${video.id}]   - Scene ${i + 1} retry also failed, skipping...`);
+          }
+        } else {
+          throw imgError; // Re-throw non-content-filter errors
+        }
+      }
+    }
+
+    // Need at least 1 image to make a video
+    if (imagePaths.length === 0) {
+      throw new Error('All scene images were blocked by content filters. Try a different topic.');
     }
 
     // Generate narration audio with TTS
@@ -165,6 +264,49 @@ router.post('/:id/generate', auth, async (req, res) => {
       data: { status: 'failed' }
     });
     res.status(500).json({ error: 'Failed to generate video content' });
+  }
+});
+
+// Update video
+router.put('/:id', auth, async (req, res) => {
+  try {
+    const { title, description, prompt, style, resolution, status } = req.body;
+    const updated = await req.prisma.video.updateMany({
+      where: { id: parseInt(req.params.id), userId: req.userId },
+      data: { title, description, prompt, style, resolution, status }
+    });
+    if (updated.count === 0) return res.status(404).json({ error: 'Video not found' });
+    const item = await req.prisma.video.findFirst({ where: { id: parseInt(req.params.id) } });
+    res.json(item);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update video' });
+  }
+});
+
+// Bulk delete videos
+router.post('/bulk-delete', auth, async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const result = await req.prisma.video.deleteMany({
+      where: { id: { in: ids }, userId: req.userId }
+    });
+    res.json({ message: `${result.count} videos deleted` });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to bulk delete videos' });
+  }
+});
+
+// Bulk update videos
+router.post('/bulk-update', auth, async (req, res) => {
+  try {
+    const { ids, data } = req.body;
+    const result = await req.prisma.video.updateMany({
+      where: { id: { in: ids }, userId: req.userId },
+      data
+    });
+    res.json({ message: `${result.count} videos updated` });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to bulk update videos' });
   }
 });
 

@@ -8,28 +8,79 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  email            String   @unique
+  password         String
+  name             String
+  role             String   @default("editor") // admin, editor, viewer
+  avatar           String?
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean  @default(false)
+  lastLogin        DateTime?
+  loginCount       Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  videos        Video[]
-  audioFiles    Audio[]
-  textContents  TextContent[]
-  images        Image[]
-  translations  Translation[]
-  summaries     Summary[]
-  seoContents   SEOContent[]
-  socialPosts   SocialPost[]
-  emails        Email[]
-  blogPosts     BlogPost[]
-  marketingCopy MarketingCopy[]
-  scripts       Script[]
-  podcasts      Podcast[]
-  voiceovers    Voiceover[]
-  musicTracks   MusicTrack[]
+  videos             Video[]
+  audioFiles         Audio[]
+  textContents       TextContent[]
+  images             Image[]
+  translations       Translation[]
+  summaries          Summary[]
+  seoContents        SEOContent[]
+  socialPosts        SocialPost[]
+  emails             Email[]
+  blogPosts          BlogPost[]
+  marketingCopy      MarketingCopy[]
+  scripts            Script[]
+  podcasts           Podcast[]
+  voiceovers         Voiceover[]
+  musicTracks        MusicTrack[]
+  contentCalendars   ContentCalendar[]
+  repurposedContents RepurposedContent[]
+  plagiarismChecks   PlagiarismCheck[]
+  imageSuggestions   ImageSuggestion[]
+  performancePredictions PerformancePrediction[]
+  blogOutlines       BlogOutline[]
+  newsletters        Newsletter[]
+  pressReleases      PressRelease[]
+  passwordResets     PasswordReset[]
+  apiKeys            ApiKey[]
+  auditLogs          AuditLog[]
+}
+
+model PasswordReset {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model ApiKey {
+  id        Int      @id @default(autoincrement())
+  name      String
+  key       String   @unique
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  action     String   // create, update, delete, generate, login, etc.
+  resource   String   // video, audio, user, etc.
+  resourceId Int?
+  details    String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
 }
 
 model Video {
@@ -251,4 +302,183 @@ model MusicTrack {
   updatedAt   DateTime @updatedAt
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
+}
+
+// NEW MODELS FOR AI CONTENT STUDIO FEATURES
+
+model ContentCalendar {
+  id                Int      @id @default(autoincrement())
+  title             String
+  contentType       String   // blog, social, email, video, etc.
+  scheduledDate     DateTime
+  platform          String?
+  topic             String
+  status            String   @default("pending") // pending, scheduled, published, draft
+  content           String?
+  aiSuggestions     String?
+  contentBrief      String?
+  keyPoints         String?
+  suggestedHashtags String?
+  bestTimeToPost    String?
+  contentHooks      String?
+  callToAction      String?
+  relatedTopics     String?
+  visualSuggestions String?
+  toneGuidance      String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  userId            Int
+  user              User     @relation(fields: [userId], references: [id])
+}
+
+model RepurposedContent {
+  id              Int      @id @default(autoincrement())
+  title           String
+  originalContent String
+  originalType    String   // blog, video, podcast, etc.
+  targetType      String   // social, email, thread, summary, etc.
+  targetPlatform  String?
+  repurposedContent String?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model PlagiarismCheck {
+  id                Int      @id @default(autoincrement())
+  title             String
+  content           String
+  originalityScore  Float?
+  plagiarismScore   Float?
+  analysisReport    String?
+  flaggedSections   String?
+  suggestions       String?
+  overallAssessment String?
+  uniqueElements    String?
+  commonPhrases     String?
+  potentialConcerns String?
+  readability       String?
+  voiceConsistency  String?
+  toneAppropriate   String?
+  status            String   @default("pending")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  userId            Int
+  user              User     @relation(fields: [userId], references: [id])
+}
+
+model ImageSuggestion {
+  id                 Int      @id @default(autoincrement())
+  title              String
+  content            String   // The content to analyze
+  contentType        String   // blog, social, email, etc.
+  suggestions        String?  // JSON array of image suggestions
+  imagePrompts       String?  // AI-generated prompts for image generation
+  stockKeywords      String?  // Keywords for stock image search
+  colorPalette       String?
+  brandingNotes      String?
+  accessibilityNotes String?
+  status             String   @default("pending")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  userId             Int
+  user               User     @relation(fields: [userId], references: [id])
+}
+
+model PerformancePrediction {
+  id                    Int      @id @default(autoincrement())
+  title                 String
+  content               String
+  contentType           String   // blog, social, email, video, etc.
+  platform              String?
+  predictedScore        Float?
+  engagementPrediction  String?
+  viralityScore         Float?
+  recommendations       String?
+  analysisDetails       String?
+  strengthAnalysis      String?
+  weaknessAnalysis      String?
+  audienceAppeal        String?
+  timingRecommendations String?
+  competitiveAnalysis   String?
+  hashtagSuggestions    String?
+  headlineAlternatives  String?
+  status                String   @default("pending")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  userId                Int
+  user                  User     @relation(fields: [userId], references: [id])
+}
+
+model BlogOutline {
+  id                Int      @id @default(autoincrement())
+  title             String
+  topic             String
+  targetAudience    String?
+  keywords          String?
+  outline           String?  // JSON structure with sections
+  estimatedLength   Int?
+  seoScore          Float?
+  suggestions       String?
+  subtitle          String?
+  metaDescription   String?
+  estimatedReadTime String?
+  targetKeywords    String?
+  contentHooks      String?
+  callToAction      String?
+  relatedTopics     String?
+  visualSuggestions String?
+  status            String   @default("pending")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  userId            Int
+  user              User     @relation(fields: [userId], references: [id])
+}
+
+model Newsletter {
+  id                      Int      @id @default(autoincrement())
+  title                   String
+  topic                   String
+  audience                String?
+  frequency               String?  // daily, weekly, monthly
+  sections                String?  // JSON array of sections
+  content                 String?
+  subject                 String?
+  preheader               String?
+  callToAction            String?
+  alternativeSubjectLines String?
+  sendTimeSuggestion      String?
+  segmentationSuggestion  String?
+  status                  String   @default("pending")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  userId                  Int
+  user                    User     @relation(fields: [userId], references: [id])
+}
+
+model PressRelease {
+  id                 Int      @id @default(autoincrement())
+  title              String
+  companyName        String
+  announcement       String
+  targetMedia        String?  // tech, business, general, industry
+  quotes             String?
+  content            String?
+  headline           String?
+  subheadline        String?
+  boilerplate        String?
+  contactInfo        String?
+  dateline           String?
+  leadParagraph      String?
+  mediaAngle         String?
+  targetPublications String?
+  followUpTips       String?
+  socialMediaTeaser  String?
+  status             String   @default("pending")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  userId             Int
+  user               User     @relation(fields: [userId], references: [id])
 }

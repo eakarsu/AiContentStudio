@@ -1,12 +1,15 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import FeaturePage from './pages/FeaturePage';
+import Profile from './pages/Profile';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -16,36 +19,49 @@ function PrivateRoute({ children }) {
     );
   }
 
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/login" state={{ from: location }} />;
 }
 
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/" element={
-        <PrivateRoute>
-          <Layout />
-        </PrivateRoute>
-      }>
-        <Route index element={<Dashboard />} />
-        <Route path="videos" element={<FeaturePage feature="videos" title="Video Generation" />} />
-        <Route path="audio" element={<FeaturePage feature="audio" title="Audio Generation" />} />
-        <Route path="text" element={<FeaturePage feature="text" title="Text Content" />} />
-        <Route path="images" element={<FeaturePage feature="images" title="Image Generation" />} />
-        <Route path="translations" element={<FeaturePage feature="translations" title="Translations" />} />
-        <Route path="summaries" element={<FeaturePage feature="summaries" title="Summaries" />} />
-        <Route path="seo" element={<FeaturePage feature="seo" title="SEO Content" />} />
-        <Route path="social" element={<FeaturePage feature="social" title="Social Media Posts" />} />
-        <Route path="emails" element={<FeaturePage feature="emails" title="Email Content" />} />
-        <Route path="blogs" element={<FeaturePage feature="blogs" title="Blog Posts" />} />
-        <Route path="marketing" element={<FeaturePage feature="marketing" title="Marketing Copy" />} />
-        <Route path="scripts" element={<FeaturePage feature="scripts" title="Scripts" />} />
-        <Route path="podcasts" element={<FeaturePage feature="podcasts" title="Podcasts" />} />
-        <Route path="voiceovers" element={<FeaturePage feature="voiceovers" title="Voiceovers" />} />
-        <Route path="music" element={<FeaturePage feature="music" title="Music Generation" />} />
-      </Route>
-    </Routes>
+    <ErrorBoundary>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={
+          <PrivateRoute>
+            <Layout />
+          </PrivateRoute>
+        }>
+          <Route index element={<Dashboard />} />
+          <Route path="profile" element={<Profile />} />
+          {/* Existing Features */}
+          <Route path="videos" element={<FeaturePage feature="videos" title="Video Generation" />} />
+          <Route path="audio" element={<FeaturePage feature="audio" title="Audio Generation" />} />
+          <Route path="text" element={<FeaturePage feature="text" title="Text Content" />} />
+          <Route path="images" element={<FeaturePage feature="images" title="Image Generation" />} />
+          <Route path="translations" element={<FeaturePage feature="translations" title="Translations" />} />
+          <Route path="summaries" element={<FeaturePage feature="summaries" title="Summaries" />} />
+          <Route path="seo" element={<FeaturePage feature="seo" title="SEO Content" />} />
+          <Route path="social" element={<FeaturePage feature="social" title="Social Media Posts" />} />
+          <Route path="emails" element={<FeaturePage feature="emails" title="Email Content" />} />
+          <Route path="blogs" element={<FeaturePage feature="blogs" title="Blog Posts" />} />
+          <Route path="marketing" element={<FeaturePage feature="marketing" title="Marketing Copy" />} />
+          <Route path="scripts" element={<FeaturePage feature="scripts" title="Scripts" />} />
+          <Route path="podcasts" element={<FeaturePage feature="podcasts" title="Podcasts" />} />
+          <Route path="voiceovers" element={<FeaturePage feature="voiceovers" title="Voiceovers" />} />
+          <Route path="music" element={<FeaturePage feature="music" title="Music Generation" />} />
+          {/* NEW AI Content Studio Features */}
+          <Route path="calendar" element={<FeaturePage feature="calendar" title="AI Content Calendar" />} />
+          <Route path="repurpose" element={<FeaturePage feature="repurpose" title="AI Repurposer" />} />
+          <Route path="plagiarism" element={<FeaturePage feature="plagiarism" title="AI Plagiarism Checker" />} />
+          <Route path="image-suggester" element={<FeaturePage feature="image-suggester" title="AI Image Suggester" />} />
+          <Route path="performance" element={<FeaturePage feature="performance" title="AI Performance Predictor" />} />
+          <Route path="blog-outlines" element={<FeaturePage feature="blog-outlines" title="AI Blog Outline Creator" />} />
+          <Route path="newsletters" element={<FeaturePage feature="newsletters" title="AI Newsletter Writer" />} />
+          <Route path="press-releases" element={<FeaturePage feature="press-releases" title="AI Press Release Writer" />} />
+        </Route>
+      </Routes>
+    </ErrorBoundary>
   );
 }
 

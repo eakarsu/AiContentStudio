@@ -3,10 +3,94 @@ import { useAuth } from '../context/AuthContext';
 import {
   FiVideo, FiMusic, FiFileText, FiImage, FiGlobe,
   FiAlignLeft, FiSearch, FiShare2, FiMail, FiEdit,
-  FiDollarSign, FiFilm, FiMic, FiHeadphones, FiArrowRight
+  FiDollarSign, FiFilm, FiMic, FiHeadphones, FiArrowRight,
+  FiCalendar, FiRepeat, FiShield, FiCamera, FiTrendingUp,
+  FiList, FiSend, FiFileText as FiPress
 } from 'react-icons/fi';
 
 const features = [
+  // AI Content Studio Features (NEW)
+  {
+    id: 'calendar',
+    title: 'AI Content Calendar',
+    description: 'Plan and schedule your content with AI-powered suggestions',
+    icon: FiCalendar,
+    color: 'from-violet-500 to-purple-600',
+    bgColor: 'bg-violet-50',
+    iconColor: 'text-violet-600',
+    isNew: true
+  },
+  {
+    id: 'repurpose',
+    title: 'AI Repurposer',
+    description: 'Transform content across formats and platforms instantly',
+    icon: FiRepeat,
+    color: 'from-cyan-500 to-blue-600',
+    bgColor: 'bg-cyan-50',
+    iconColor: 'text-cyan-600',
+    isNew: true
+  },
+  {
+    id: 'plagiarism',
+    title: 'AI Plagiarism Checker',
+    description: 'Analyze content originality and get improvement suggestions',
+    icon: FiShield,
+    color: 'from-emerald-500 to-green-600',
+    bgColor: 'bg-emerald-50',
+    iconColor: 'text-emerald-600',
+    isNew: true
+  },
+  {
+    id: 'image-suggester',
+    title: 'AI Image Suggester',
+    description: 'Get smart image recommendations for your content',
+    icon: FiCamera,
+    color: 'from-pink-500 to-rose-600',
+    bgColor: 'bg-pink-50',
+    iconColor: 'text-pink-600',
+    isNew: true
+  },
+  {
+    id: 'performance',
+    title: 'AI Performance Predictor',
+    description: 'Predict content performance before you publish',
+    icon: FiTrendingUp,
+    color: 'from-orange-500 to-amber-600',
+    bgColor: 'bg-orange-50',
+    iconColor: 'text-orange-600',
+    isNew: true
+  },
+  {
+    id: 'blog-outlines',
+    title: 'AI Blog Outline Creator',
+    description: 'Generate SEO-optimized blog outlines in seconds',
+    icon: FiList,
+    color: 'from-indigo-500 to-blue-600',
+    bgColor: 'bg-indigo-50',
+    iconColor: 'text-indigo-600',
+    isNew: true
+  },
+  {
+    id: 'newsletters',
+    title: 'AI Newsletter Writer',
+    description: 'Create engaging newsletters with AI assistance',
+    icon: FiSend,
+    color: 'from-teal-500 to-emerald-600',
+    bgColor: 'bg-teal-50',
+    iconColor: 'text-teal-600',
+    isNew: true
+  },
+  {
+    id: 'press-releases',
+    title: 'AI Press Release Writer',
+    description: 'Generate professional press releases that get coverage',
+    icon: FiPress,
+    color: 'from-slate-500 to-gray-700',
+    bgColor: 'bg-slate-50',
+    iconColor: 'text-slate-600',
+    isNew: true
+  },
+  // Existing Features
   {
     id: 'videos',
     title: 'Video Generation',
@@ -152,6 +236,9 @@ export default function Dashboard() {
     navigate(`/${featureId}`);
   };
 
+  const newFeatures = features.filter(f => f.isNew);
+  const existingFeatures = features.filter(f => !f.isNew);
+
   return (
     <div className="animate-fadeIn">
       {/* Header */}
@@ -182,39 +269,81 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Feature Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {features.map((feature, index) => {
-          const Icon = feature.icon;
-          return (
-            <div
-              key={feature.id}
-              onClick={() => handleCardClick(feature.id)}
-              className="group bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all cursor-pointer animate-fadeIn"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div className="flex items-start justify-between">
-                <div className={`p-3 rounded-xl ${feature.bgColor}`}>
-                  <Icon className={`w-6 h-6 ${feature.iconColor}`} />
-                </div>
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className={`p-2 rounded-lg bg-gradient-to-r ${feature.color}`}>
-                    <FiArrowRight className="w-4 h-4 text-white" />
+      {/* NEW AI Content Studio Features */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <h2 className="text-xl font-bold text-gray-900">AI Content Studio</h2>
+          <span className="px-2 py-1 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-bold rounded-full">NEW</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {newFeatures.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={feature.id}
+                onClick={() => handleCardClick(feature.id)}
+                className="group bg-white rounded-xl p-5 shadow-sm border-2 border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer animate-fadeIn relative overflow-hidden"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-100 to-transparent rounded-bl-full opacity-50"></div>
+                <div className="flex items-start justify-between relative z-10">
+                  <div className={`p-2.5 rounded-lg ${feature.bgColor}`}>
+                    <Icon className={`w-5 h-5 ${feature.iconColor}`} />
+                  </div>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className={`p-1.5 rounded-lg bg-gradient-to-r ${feature.color}`}>
+                      <FiArrowRight className="w-3 h-3 text-white" />
+                    </div>
                   </div>
                 </div>
+                <h3 className="mt-3 text-sm font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="mt-1 text-xs text-gray-500 line-clamp-2">
+                  {feature.description}
+                </p>
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
-                {feature.title}
-              </h3>
-              <p className="mt-2 text-sm text-gray-500 line-clamp-2">
-                {feature.description}
-              </p>
-              <div className="mt-4 flex items-center gap-2">
-                <div className={`h-1 flex-1 rounded-full bg-gradient-to-r ${feature.color} opacity-20 group-hover:opacity-40 transition-opacity`}></div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* All Features */}
+      <div>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">All Content Tools</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {existingFeatures.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={feature.id}
+                onClick={() => handleCardClick(feature.id)}
+                className="group bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all cursor-pointer animate-fadeIn"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="flex items-start justify-between">
+                  <div className={`p-3 rounded-xl ${feature.bgColor}`}>
+                    <Icon className={`w-6 h-6 ${feature.iconColor}`} />
+                  </div>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className={`p-2 rounded-lg bg-gradient-to-r ${feature.color}`}>
+                      <FiArrowRight className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="mt-2 text-sm text-gray-500 line-clamp-2">
+                  {feature.description}
+                </p>
+                <div className="mt-4 flex items-center gap-2">
+                  <div className={`h-1 flex-1 rounded-full bg-gradient-to-r ${feature.color} opacity-20 group-hover:opacity-40 transition-opacity`}></div>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

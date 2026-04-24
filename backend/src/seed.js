@@ -20,365 +20,645 @@ async function seed() {
   });
   console.log('✅ Demo user created');
 
-  // Seed Videos (15+ items)
-  const videos = [
-    { title: 'Product Launch Promo', prompt: 'Create an exciting product launch video for a new smartphone', style: 'modern', resolution: '4K', status: 'completed', thumbnail: 'https://picsum.photos/seed/v1/640/360', duration: 120 },
-    { title: 'Brand Story Video', prompt: 'Tell our company story in a compelling documentary style', style: 'cinematic', resolution: '1080p', status: 'completed', thumbnail: 'https://picsum.photos/seed/v2/640/360', duration: 180 },
-    { title: 'Tutorial: Getting Started', prompt: 'Create a beginner-friendly tutorial for our software', style: 'educational', resolution: '1080p', status: 'completed', thumbnail: 'https://picsum.photos/seed/v3/640/360', duration: 300 },
-    { title: 'Customer Testimonial', prompt: 'Create a heartfelt customer testimonial video', style: 'authentic', resolution: '1080p', status: 'completed', thumbnail: 'https://picsum.photos/seed/v4/640/360', duration: 90 },
-    { title: 'Social Media Ad', prompt: 'Create a catchy 15-second ad for Instagram', style: 'trendy', resolution: '1080p', status: 'completed', thumbnail: 'https://picsum.photos/seed/v5/640/360', duration: 15 },
-    { title: 'Explainer Animation', prompt: 'Explain how blockchain works in simple terms', style: 'animated', resolution: '1080p', status: 'completed', thumbnail: 'https://picsum.photos/seed/v6/640/360', duration: 150 },
-    { title: 'Event Highlight Reel', prompt: 'Create highlights from our annual conference', style: 'dynamic', resolution: '4K', status: 'completed', thumbnail: 'https://picsum.photos/seed/v7/640/360', duration: 240 },
-    { title: 'Behind the Scenes', prompt: 'Show the making of our latest product', style: 'casual', resolution: '1080p', status: 'pending', thumbnail: 'https://picsum.photos/seed/v8/640/360', duration: 200 },
-    { title: 'Training Module 1', prompt: 'Employee onboarding training video', style: 'professional', resolution: '1080p', status: 'completed', thumbnail: 'https://picsum.photos/seed/v9/640/360', duration: 600 },
-    { title: 'YouTube Intro', prompt: 'Create a dynamic channel intro with logo animation', style: 'energetic', resolution: '1080p', status: 'completed', thumbnail: 'https://picsum.photos/seed/v10/640/360', duration: 10 },
-    { title: 'Real Estate Tour', prompt: 'Virtual tour of luxury apartment complex', style: 'elegant', resolution: '4K', status: 'completed', thumbnail: 'https://picsum.photos/seed/v11/640/360', duration: 180 },
-    { title: 'Recipe Video', prompt: 'Step-by-step cooking tutorial for pasta carbonara', style: 'foodie', resolution: '1080p', status: 'completed', thumbnail: 'https://picsum.photos/seed/v12/640/360', duration: 240 },
-    { title: 'Fitness Workout', prompt: '20-minute HIIT workout video', style: 'energetic', resolution: '1080p', status: 'completed', thumbnail: 'https://picsum.photos/seed/v13/640/360', duration: 1200 },
-    { title: 'Music Video Concept', prompt: 'Indie band music video with nature themes', style: 'artistic', resolution: '4K', status: 'pending', thumbnail: 'https://picsum.photos/seed/v14/640/360', duration: 240 },
-    { title: 'Corporate Presentation', prompt: 'Annual report video presentation', style: 'corporate', resolution: '1080p', status: 'completed', thumbnail: 'https://picsum.photos/seed/v15/640/360', duration: 420 }
-  ];
-
-  for (const video of videos) {
-    await prisma.video.create({ data: { ...video, userId: user.id } });
+  // Allow force re-seed with --force flag
+  if (process.argv.includes('--force')) {
+    console.log('⚠️  Force flag detected - clearing existing data...');
+    await prisma.contentCalendar.deleteMany({});
+    await prisma.repurposedContent.deleteMany({});
+    await prisma.plagiarismCheck.deleteMany({});
+    await prisma.imageSuggestion.deleteMany({});
+    await prisma.performancePrediction.deleteMany({});
+    await prisma.blogOutline.deleteMany({});
+    await prisma.newsletter.deleteMany({});
+    await prisma.pressRelease.deleteMany({});
+    // Original 15 models
+    await prisma.video.deleteMany({});
+    await prisma.audio.deleteMany({});
+    await prisma.textContent.deleteMany({});
+    await prisma.image.deleteMany({});
+    await prisma.translation.deleteMany({});
+    await prisma.summary.deleteMany({});
+    await prisma.sEOContent.deleteMany({});
+    await prisma.socialPost.deleteMany({});
+    await prisma.email.deleteMany({});
+    await prisma.blogPost.deleteMany({});
+    await prisma.marketingCopy.deleteMany({});
+    await prisma.script.deleteMany({});
+    await prisma.podcast.deleteMany({});
+    await prisma.voiceover.deleteMany({});
+    await prisma.musicTrack.deleteMany({});
+    console.log('✅ Existing data cleared');
   }
-  console.log('✅ Videos seeded (15 items)');
 
-  // Seed Audio (15+ items)
-  const audioFiles = [
-    { title: 'Welcome Message', prompt: 'Friendly welcome message for app users', voice: 'female', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/1.mp3', duration: 30 },
-    { title: 'Meditation Guide', prompt: '10-minute guided meditation for stress relief', voice: 'calm', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/2.mp3', duration: 600 },
-    { title: 'Product Description', prompt: 'Audio description for visually impaired users', voice: 'neutral', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/3.mp3', duration: 120 },
-    { title: 'Phone System IVR', prompt: 'Professional IVR menu for customer service', voice: 'professional', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/4.mp3', duration: 60 },
-    { title: 'Audiobook Chapter 1', prompt: 'Narration for mystery novel first chapter', voice: 'dramatic', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/5.mp3', duration: 1800 },
-    { title: 'Language Lesson', prompt: 'Spanish vocabulary lesson for beginners', voice: 'educational', language: 'es', status: 'completed', audioUrl: 'https://example.com/audio/6.mp3', duration: 900 },
-    { title: 'Radio Ad', prompt: '30-second radio commercial for car dealership', voice: 'energetic', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/7.mp3', duration: 30 },
-    { title: 'Documentary Narration', prompt: 'Nature documentary voiceover about ocean life', voice: 'authoritative', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/8.mp3', duration: 300 },
-    { title: 'Kids Story', prompt: 'Bedtime story narration for children', voice: 'warm', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/9.mp3', duration: 420 },
-    { title: 'News Bulletin', prompt: 'Breaking news announcement style', voice: 'news', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/10.mp3', duration: 45 },
-    { title: 'Fitness Instructions', prompt: 'Workout audio instructions for gym', voice: 'motivational', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/11.mp3', duration: 180 },
-    { title: 'GPS Navigation', prompt: 'Turn-by-turn navigation voice prompts', voice: 'clear', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/12.mp3', duration: 60 },
-    { title: 'Museum Tour', prompt: 'Audio guide for art museum exhibition', voice: 'cultured', language: 'en', status: 'pending', audioUrl: 'https://example.com/audio/13.mp3', duration: 1200 },
-    { title: 'Safety Announcement', prompt: 'Emergency evacuation instructions', voice: 'authoritative', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/14.mp3', duration: 90 },
-    { title: 'Game Character Voice', prompt: 'Fantasy game wizard character lines', voice: 'dramatic', language: 'en', status: 'completed', audioUrl: 'https://example.com/audio/15.mp3', duration: 120 }
-  ];
-
-  for (const audio of audioFiles) {
-    await prisma.audio.create({ data: { ...audio, userId: user.id } });
+  // Check if data already exists - skip seeding if so
+  const existingCalendar = await prisma.contentCalendar.count();
+  const existingVideos = await prisma.video.count();
+  if (existingCalendar > 0 && existingVideos > 0) {
+    console.log('📋 Database already has data - skipping seed to preserve your generated content');
+    console.log('   (To force re-seed, run: cd backend && node src/seed.js --force)');
+    console.log('🎉 Database ready!');
+    return;
   }
-  console.log('✅ Audio files seeded (15 items)');
 
-  // Seed Text Content (15+ items)
-  const textContents = [
-    { title: 'Website Copy', prompt: 'Write compelling homepage copy for SaaS product', type: 'web', tone: 'professional', status: 'completed', content: 'Transform your workflow with our AI-powered solution...', wordCount: 250 },
-    { title: 'Product Description', prompt: 'Write description for wireless headphones', type: 'product', tone: 'persuasive', status: 'completed', content: 'Experience audio like never before...', wordCount: 150 },
-    { title: 'About Us Page', prompt: 'Write about us page for tech startup', type: 'web', tone: 'friendly', status: 'completed', content: 'Founded in 2020, we set out to revolutionize...', wordCount: 400 },
-    { title: 'Press Release', prompt: 'Announce new product launch', type: 'press', tone: 'formal', status: 'completed', content: 'FOR IMMEDIATE RELEASE...', wordCount: 500 },
-    { title: 'FAQ Content', prompt: 'Write FAQ section for e-commerce site', type: 'web', tone: 'helpful', status: 'completed', content: 'Q: How do I track my order?...', wordCount: 800 },
-    { title: 'Terms of Service', prompt: 'Write ToS for mobile app', type: 'legal', tone: 'formal', status: 'completed', content: 'By using this application...', wordCount: 2000 },
-    { title: 'Privacy Policy', prompt: 'Write GDPR-compliant privacy policy', type: 'legal', tone: 'formal', status: 'completed', content: 'We respect your privacy...', wordCount: 1500 },
-    { title: 'Landing Page', prompt: 'Write high-converting landing page copy', type: 'marketing', tone: 'urgent', status: 'completed', content: 'Limited Time Offer...', wordCount: 600 },
-    { title: 'Case Study', prompt: 'Write customer success case study', type: 'marketing', tone: 'professional', status: 'completed', content: 'Challenge: Our client faced...', wordCount: 1200 },
-    { title: 'White Paper Intro', prompt: 'Write introduction for AI trends white paper', type: 'research', tone: 'authoritative', status: 'pending', content: 'Artificial Intelligence is transforming...', wordCount: 500 },
-    { title: 'App Store Description', prompt: 'Write compelling app store listing', type: 'product', tone: 'exciting', status: 'completed', content: 'The #1 productivity app...', wordCount: 200 },
-    { title: 'Newsletter Intro', prompt: 'Write engaging newsletter opening', type: 'email', tone: 'conversational', status: 'completed', content: 'Happy Friday! This week...', wordCount: 100 },
-    { title: 'Event Description', prompt: 'Write description for tech conference', type: 'event', tone: 'exciting', status: 'completed', content: 'Join us for the biggest tech event...', wordCount: 300 },
-    { title: 'Job Posting', prompt: 'Write job posting for senior developer', type: 'hr', tone: 'professional', status: 'completed', content: 'We are looking for a talented...', wordCount: 450 },
-    { title: 'Bio/Profile', prompt: 'Write professional bio for LinkedIn', type: 'personal', tone: 'professional', status: 'completed', content: 'A results-driven professional...', wordCount: 150 }
-  ];
+  // =============================================
+  // ORIGINAL 15 FEATURES - Seed Data (15 items each)
+  // =============================================
 
-  for (const text of textContents) {
-    await prisma.textContent.create({ data: { ...text, userId: user.id } });
+  // --- Video ---
+  const existingVideoCount = await prisma.video.count();
+  if (existingVideoCount === 0) {
+    const videoItems = [
+      { title: 'Product Launch Teaser', prompt: 'Create a 60-second teaser video for a new SaaS product launch', style: 'cinematic', resolution: '1080p', status: 'completed' },
+      { title: 'Company Culture Video', prompt: 'Behind the scenes look at our startup culture and team', style: 'casual', resolution: '1080p', status: 'completed' },
+      { title: 'Tutorial: Getting Started', prompt: 'Step-by-step tutorial on how to use our platform', style: 'educational', resolution: '1080p', status: 'pending' },
+      { title: 'Customer Testimonial', prompt: 'Interview style testimonial from a satisfied enterprise customer', style: 'professional', resolution: '4K', status: 'completed' },
+      { title: 'Social Media Ad', prompt: 'Eye-catching 15-second ad for Instagram and TikTok', style: 'animated', resolution: '1080p', status: 'pending' },
+      { title: 'Explainer Animation', prompt: 'Animated explainer of how AI content generation works', style: 'animated', resolution: '1080p', status: 'completed' },
+      { title: 'Quarterly Recap', prompt: 'Highlight reel of Q1 achievements and milestones', style: 'professional', resolution: '1080p', status: 'completed' },
+      { title: 'Event Highlights', prompt: 'Recap video of our annual tech conference', style: 'cinematic', resolution: '4K', status: 'pending' },
+      { title: 'Feature Demo', prompt: 'Demonstration of the new AI writing assistant feature', style: 'educational', resolution: '1080p', status: 'completed' },
+      { title: 'Brand Story', prompt: 'Emotional brand story about our founding journey', style: 'cinematic', resolution: '4K', status: 'completed' },
+      { title: 'How-To Guide', prompt: 'Video guide on content marketing best practices', style: 'educational', resolution: '1080p', status: 'pending' },
+      { title: 'Investor Update', prompt: 'Professional update video for investors and stakeholders', style: 'professional', resolution: '1080p', status: 'completed' },
+      { title: 'Holiday Greeting', prompt: 'Warm holiday greeting video for customers and partners', style: 'casual', resolution: '1080p', status: 'completed' },
+      { title: 'Webinar Recording', prompt: 'Full webinar on scaling content production with AI', style: 'professional', resolution: '1080p', status: 'pending' },
+      { title: 'App Preview', prompt: 'App store preview video showcasing key features', style: 'animated', resolution: '1080p', status: 'completed' }
+    ];
+    for (const item of videoItems) {
+      await prisma.video.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Videos seeded (15 items)');
   }
-  console.log('✅ Text content seeded (15 items)');
 
-  // Seed Images (15+ items)
-  const images = [
-    { title: 'Hero Banner', prompt: 'Modern tech website hero image with abstract shapes', style: 'modern', resolution: '1920x1080', status: 'completed', imageUrl: 'https://picsum.photos/seed/i1/1920/1080' },
-    { title: 'Product Mockup', prompt: 'Smartphone mockup on marble surface', style: 'minimal', resolution: '1024x1024', status: 'completed', imageUrl: 'https://picsum.photos/seed/i2/1024/1024' },
-    { title: 'Team Photo Background', prompt: 'Abstract office background for team photos', style: 'corporate', resolution: '1920x1080', status: 'completed', imageUrl: 'https://picsum.photos/seed/i3/1920/1080' },
-    { title: 'Social Media Post', prompt: 'Inspirational quote background with sunset', style: 'inspirational', resolution: '1080x1080', status: 'completed', imageUrl: 'https://picsum.photos/seed/i4/1080/1080' },
-    { title: 'Blog Featured Image', prompt: 'AI and technology concept illustration', style: 'futuristic', resolution: '1200x630', status: 'completed', imageUrl: 'https://picsum.photos/seed/i5/1200/630' },
-    { title: 'Icon Set', prompt: 'Modern flat icons for finance app', style: 'flat', resolution: '512x512', status: 'completed', imageUrl: 'https://picsum.photos/seed/i6/512/512' },
-    { title: 'Email Header', prompt: 'Newsletter header with gradient and logo space', style: 'elegant', resolution: '600x200', status: 'completed', imageUrl: 'https://picsum.photos/seed/i7/600/200' },
-    { title: 'App Splash Screen', prompt: 'Colorful splash screen for fitness app', style: 'vibrant', resolution: '1080x1920', status: 'completed', imageUrl: 'https://picsum.photos/seed/i8/1080/1920' },
-    { title: 'Infographic Background', prompt: 'Clean white background for data visualization', style: 'minimal', resolution: '800x2000', status: 'completed', imageUrl: 'https://picsum.photos/seed/i9/800/2000' },
-    { title: 'Logo Concept', prompt: 'Abstract geometric logo for tech company', style: 'geometric', resolution: '1024x1024', status: 'completed', imageUrl: 'https://picsum.photos/seed/i10/1024/1024' },
-    { title: 'Presentation Slide', prompt: 'Professional slide background with blue theme', style: 'corporate', resolution: '1920x1080', status: 'completed', imageUrl: 'https://picsum.photos/seed/i11/1920/1080' },
-    { title: 'Avatar Generator', prompt: 'Cartoon style avatar placeholder', style: 'cartoon', resolution: '256x256', status: 'completed', imageUrl: 'https://picsum.photos/seed/i12/256/256' },
-    { title: 'Thumbnail Design', prompt: 'YouTube thumbnail with bold text space', style: 'bold', resolution: '1280x720', status: 'pending', imageUrl: 'https://picsum.photos/seed/i13/1280/720' },
-    { title: 'Pattern Design', prompt: 'Seamless geometric pattern for backgrounds', style: 'pattern', resolution: '1024x1024', status: 'completed', imageUrl: 'https://picsum.photos/seed/i14/1024/1024' },
-    { title: 'Product Photo', prompt: 'E-commerce product photo with white background', style: 'product', resolution: '1000x1000', status: 'completed', imageUrl: 'https://picsum.photos/seed/i15/1000/1000' }
-  ];
-
-  for (const image of images) {
-    await prisma.image.create({ data: { ...image, userId: user.id } });
+  // --- Audio ---
+  const existingAudioCount = await prisma.audio.count();
+  if (existingAudioCount === 0) {
+    const audioItems = [
+      { title: 'Podcast Intro Jingle', prompt: 'Upbeat intro jingle for a tech podcast', voice: 'professional', language: 'en', status: 'completed' },
+      { title: 'Meditation Narration', prompt: 'Calm guided meditation for stress relief', voice: 'calm', language: 'en', status: 'completed' },
+      { title: 'Product Announcement', prompt: 'Exciting product launch announcement voiceover', voice: 'professional', language: 'en', status: 'pending' },
+      { title: 'Spanish Tutorial', prompt: 'Beginner Spanish learning audio lesson', voice: 'friendly', language: 'es', status: 'completed' },
+      { title: 'News Briefing', prompt: 'Daily tech news briefing in broadcast style', voice: 'professional', language: 'en', status: 'completed' },
+      { title: 'Audiobook Chapter', prompt: 'Chapter narration for a business book', voice: 'neutral', language: 'en', status: 'pending' },
+      { title: 'Radio Ad', prompt: '30-second radio advertisement for a fitness app', voice: 'friendly', language: 'en', status: 'completed' },
+      { title: 'French Narration', prompt: 'Documentary-style narration about Paris history', voice: 'professional', language: 'fr', status: 'completed' },
+      { title: 'Customer Support IVR', prompt: 'Professional IVR phone menu voice prompts', voice: 'professional', language: 'en', status: 'pending' },
+      { title: 'E-Learning Module', prompt: 'Educational audio for online course on data science', voice: 'neutral', language: 'en', status: 'completed' },
+      { title: 'Storytelling Audio', prompt: 'Children story narration with engaging tone', voice: 'friendly', language: 'en', status: 'completed' },
+      { title: 'Motivational Speech', prompt: 'Inspiring motivational speech for team building', voice: 'professional', language: 'en', status: 'pending' },
+      { title: 'German Podcast', prompt: 'Tech discussion podcast episode in German', voice: 'neutral', language: 'de', status: 'completed' },
+      { title: 'Relaxation Sounds', prompt: 'Nature sounds with soft narration for sleep', voice: 'calm', language: 'en', status: 'completed' },
+      { title: 'Sales Pitch', prompt: 'Persuasive sales pitch audio for cold outreach', voice: 'professional', language: 'en', status: 'pending' }
+    ];
+    for (const item of audioItems) {
+      await prisma.audio.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Audio seeded (15 items)');
   }
-  console.log('✅ Images seeded (15 items)');
 
-  // Seed Translations (15+ items)
-  const translations = [
-    { title: 'Website Header - Spanish', originalText: 'Welcome to our platform', translatedText: 'Bienvenido a nuestra plataforma', sourceLang: 'en', targetLang: 'es', status: 'completed' },
-    { title: 'Product Description - French', originalText: 'High-quality wireless earbuds', translatedText: 'Écouteurs sans fil de haute qualité', sourceLang: 'en', targetLang: 'fr', status: 'completed' },
-    { title: 'Legal Disclaimer - German', originalText: 'Terms and conditions apply', translatedText: 'Es gelten die Allgemeinen Geschäftsbedingungen', sourceLang: 'en', targetLang: 'de', status: 'completed' },
-    { title: 'Marketing Slogan - Japanese', originalText: 'Innovation meets simplicity', translatedText: 'イノベーションとシンプルさの融合', sourceLang: 'en', targetLang: 'ja', status: 'completed' },
-    { title: 'User Manual - Chinese', originalText: 'Getting started guide', translatedText: '入门指南', sourceLang: 'en', targetLang: 'zh', status: 'completed' },
-    { title: 'Error Message - Portuguese', originalText: 'Please try again later', translatedText: 'Por favor, tente novamente mais tarde', sourceLang: 'en', targetLang: 'pt', status: 'completed' },
-    { title: 'Newsletter - Italian', originalText: 'This month in review', translatedText: 'Il mese in rassegna', sourceLang: 'en', targetLang: 'it', status: 'completed' },
-    { title: 'Support FAQ - Korean', originalText: 'How can we help you?', translatedText: '어떻게 도와드릴까요?', sourceLang: 'en', targetLang: 'ko', status: 'completed' },
-    { title: 'Social Post - Arabic', originalText: 'Join us today!', translatedText: 'انضم إلينا اليوم!', sourceLang: 'en', targetLang: 'ar', status: 'completed' },
-    { title: 'App Store - Russian', originalText: 'Download now for free', translatedText: 'Скачайте бесплатно прямо сейчас', sourceLang: 'en', targetLang: 'ru', status: 'completed' },
-    { title: 'Email Subject - Dutch', originalText: 'Your order has shipped', translatedText: 'Uw bestelling is verzonden', sourceLang: 'en', targetLang: 'nl', status: 'completed' },
-    { title: 'Button Text - Hindi', originalText: 'Learn More', translatedText: 'और जानें', sourceLang: 'en', targetLang: 'hi', status: 'pending' },
-    { title: 'Menu Items - Swedish', originalText: 'Settings and preferences', translatedText: 'Inställningar och preferenser', sourceLang: 'en', targetLang: 'sv', status: 'completed' },
-    { title: 'Privacy Policy - Polish', originalText: 'We value your privacy', translatedText: 'Cenimy Twoją prywatność', sourceLang: 'en', targetLang: 'pl', status: 'completed' },
-    { title: 'Greeting - Turkish', originalText: 'Welcome back!', translatedText: 'Tekrar hoş geldiniz!', sourceLang: 'en', targetLang: 'tr', status: 'completed' }
-  ];
-
-  for (const translation of translations) {
-    await prisma.translation.create({ data: { ...translation, userId: user.id } });
+  // --- TextContent ---
+  const existingTextCount = await prisma.textContent.count();
+  if (existingTextCount === 0) {
+    const textItems = [
+      { title: 'Privacy Policy', prompt: 'Comprehensive privacy policy for a SaaS platform', type: 'legal', tone: 'formal', status: 'completed' },
+      { title: 'About Us Page', prompt: 'Engaging about us page for an AI startup', type: 'web', tone: 'friendly', status: 'completed' },
+      { title: 'Product Description', prompt: 'Compelling product description for an AI writing tool', type: 'product', tone: 'persuasive', status: 'pending' },
+      { title: 'FAQ Section', prompt: 'Common questions and answers about our service', type: 'web', tone: 'professional', status: 'completed' },
+      { title: 'Terms of Service', prompt: 'Legal terms of service for a web application', type: 'legal', tone: 'formal', status: 'completed' },
+      { title: 'Landing Page Copy', prompt: 'High-converting landing page for lead generation', type: 'marketing', tone: 'persuasive', status: 'pending' },
+      { title: 'Whitepaper Draft', prompt: 'Technical whitepaper on AI in content marketing', type: 'general', tone: 'professional', status: 'completed' },
+      { title: 'Press Kit', prompt: 'Company press kit with key facts and messaging', type: 'marketing', tone: 'professional', status: 'completed' },
+      { title: 'Job Description', prompt: 'Senior full-stack developer job posting', type: 'general', tone: 'professional', status: 'pending' },
+      { title: 'Case Study', prompt: 'Customer success case study showing ROI metrics', type: 'marketing', tone: 'professional', status: 'completed' },
+      { title: 'Help Center Article', prompt: 'How to integrate our API with third-party tools', type: 'web', tone: 'friendly', status: 'completed' },
+      { title: 'Mission Statement', prompt: 'Inspiring company mission and vision statement', type: 'general', tone: 'professional', status: 'pending' },
+      { title: 'Feature Comparison', prompt: 'Comparison table content for pricing page', type: 'product', tone: 'professional', status: 'completed' },
+      { title: 'Onboarding Guide', prompt: 'New user onboarding welcome guide', type: 'web', tone: 'friendly', status: 'completed' },
+      { title: 'Release Notes', prompt: 'Release notes for version 2.5 with new features', type: 'general', tone: 'professional', status: 'pending' }
+    ];
+    for (const item of textItems) {
+      await prisma.textContent.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Text Content seeded (15 items)');
   }
-  console.log('✅ Translations seeded (15 items)');
 
-  // Seed Summaries (15+ items)
-  const summaries = [
-    { title: 'Meeting Notes Summary', originalText: 'During today\'s meeting, we discussed Q4 targets, marketing initiatives, and product roadmap updates. Key decisions included budget allocation for digital ads and timeline for feature releases.', summary: 'Q4 meeting covered targets, marketing, and roadmap. Decided on ad budget and feature timeline.', length: 'short', status: 'completed' },
-    { title: 'Research Paper Abstract', originalText: 'This comprehensive study examines the impact of artificial intelligence on healthcare outcomes across 50 hospitals over 3 years...', summary: 'Study of AI impact on healthcare across 50 hospitals (3 years) shows improved outcomes and cost savings.', length: 'short', status: 'completed' },
-    { title: 'Legal Document Brief', originalText: 'The terms of this agreement stipulate that both parties shall maintain confidentiality of shared information...', summary: 'Confidentiality agreement requiring both parties to protect shared information with specific breach penalties.', length: 'medium', status: 'completed' },
-    { title: 'Book Chapter Summary', originalText: 'Chapter 5 explores the emergence of digital currencies and their potential to disrupt traditional banking systems...', summary: 'Overview of digital currencies and their disruptive potential in banking, covering Bitcoin, CBDCs, and regulatory challenges.', length: 'medium', status: 'completed' },
-    { title: 'News Article Digest', originalText: 'Global markets experienced significant volatility today as investors reacted to central bank announcements...', summary: 'Market volatility following central bank policy changes, with tech stocks leading losses.', length: 'short', status: 'completed' },
-    { title: 'Technical Documentation', originalText: 'The API provides RESTful endpoints for user management, authentication, and data retrieval...', summary: 'REST API documentation covering auth, users, and data endpoints with JWT authentication.', length: 'medium', status: 'completed' },
-    { title: 'Podcast Transcript', originalText: 'In this episode, we discuss the future of remote work with industry expert Sarah Johnson...', summary: 'Remote work trends discussion with expert insights on hybrid models and productivity tools.', length: 'medium', status: 'completed' },
-    { title: 'Customer Reviews Analysis', originalText: 'Analysis of 500 customer reviews reveals patterns in satisfaction levels and common pain points...', summary: 'Customer review analysis shows high satisfaction with product quality, concerns about delivery speed.', length: 'short', status: 'completed' },
-    { title: 'Competitor Report', originalText: 'Our main competitor has launched three new products this quarter, expanded into two new markets...', summary: 'Competitor launched 3 products, entered 2 markets, indicating aggressive growth strategy.', length: 'short', status: 'completed' },
-    { title: 'Interview Highlights', originalText: 'CEO discusses company vision, recent acquisitions, and plans for international expansion...', summary: 'CEO interview covering vision, M&A activity, and global expansion plans for next fiscal year.', length: 'medium', status: 'completed' },
-    { title: 'Scientific Study', originalText: 'This longitudinal study of 10,000 participants examined the correlation between sleep patterns and cognitive performance...', summary: 'Large-scale study confirms strong correlation between sleep quality and cognitive function across age groups.', length: 'medium', status: 'pending' },
-    { title: 'Policy Document', originalText: 'The new environmental policy mandates 40% reduction in carbon emissions by 2030...', summary: 'Environmental policy requires 40% emission cuts by 2030 with industry-specific targets.', length: 'short', status: 'completed' },
-    { title: 'User Feedback Report', originalText: 'Compiled feedback from 200 beta users highlights feature requests and usability concerns...', summary: 'Beta feedback emphasizes need for improved onboarding and requested dark mode feature.', length: 'short', status: 'completed' },
-    { title: 'Webinar Recap', originalText: 'Expert panel discussed emerging trends in e-commerce, including AI personalization and voice shopping...', summary: 'E-commerce webinar covered AI personalization, voice commerce, and social shopping trends.', length: 'medium', status: 'completed' },
-    { title: 'Project Retrospective', originalText: 'Post-project analysis reveals successes in timeline adherence but challenges in scope management...', summary: 'Project met deadlines but faced scope creep; recommends better change management processes.', length: 'medium', status: 'completed' }
-  ];
-
-  for (const summary of summaries) {
-    await prisma.summary.create({ data: { ...summary, userId: user.id } });
+  // --- Image ---
+  const existingImageCount = await prisma.image.count();
+  if (existingImageCount === 0) {
+    const imageItems = [
+      { title: 'Hero Banner', prompt: 'Modern gradient hero banner for a tech company website', style: 'minimal', resolution: '1920x1080', status: 'completed' },
+      { title: 'Team Photo', prompt: 'Professional team photo illustration with diverse characters', style: 'artistic', resolution: '1024x1024', status: 'completed' },
+      { title: 'Social Media Banner', prompt: 'Eye-catching Instagram banner for a summer sale', style: 'abstract', resolution: '1024x1024', status: 'pending' },
+      { title: 'Product Mockup', prompt: 'Sleek laptop showing our SaaS dashboard on screen', style: 'realistic', resolution: '1920x1080', status: 'completed' },
+      { title: 'Blog Illustration', prompt: 'Illustration about artificial intelligence and creativity', style: 'cartoon', resolution: '1024x1024', status: 'completed' },
+      { title: 'Logo Concept', prompt: 'Modern minimalist logo for an AI content platform', style: 'minimal', resolution: '512x512', status: 'pending' },
+      { title: 'Infographic Background', prompt: 'Clean background for a content marketing infographic', style: 'minimal', resolution: '1920x1080', status: 'completed' },
+      { title: 'Email Header', prompt: 'Professional email header image for weekly newsletter', style: 'artistic', resolution: '1920x1080', status: 'completed' },
+      { title: 'App Icon', prompt: 'Colorful app icon for a content creation mobile app', style: 'cartoon', resolution: '512x512', status: 'pending' },
+      { title: 'Presentation Slide', prompt: 'Clean slide background for an investor pitch deck', style: 'minimal', resolution: '1920x1080', status: 'completed' },
+      { title: 'Event Poster', prompt: 'Vibrant poster for a tech conference event', style: 'abstract', resolution: '1024x1024', status: 'completed' },
+      { title: 'YouTube Thumbnail', prompt: 'Bold YouTube thumbnail for a tutorial video', style: 'cartoon', resolution: '1920x1080', status: 'pending' },
+      { title: 'OG Image', prompt: 'Open Graph image for social media sharing', style: 'minimal', resolution: '1920x1080', status: 'completed' },
+      { title: 'Avatar Set', prompt: 'Set of user avatar illustrations for profiles', style: 'cartoon', resolution: '512x512', status: 'completed' },
+      { title: 'Feature Screenshot', prompt: 'Polished screenshot of the analytics dashboard', style: 'realistic', resolution: '1920x1080', status: 'pending' }
+    ];
+    for (const item of imageItems) {
+      await prisma.image.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Images seeded (15 items)');
   }
-  console.log('✅ Summaries seeded (15 items)');
 
-  // Seed SEO Content (15+ items)
-  const seoContents = [
-    { title: 'AI Content Tools Guide', keyword: 'AI content generation tools', content: '# Best AI Content Generation Tools in 2024...', metaTitle: 'Top AI Content Tools 2024 | Complete Guide', metaDesc: 'Discover the best AI content generation tools for marketing, blogging, and social media.', status: 'completed' },
-    { title: 'Remote Work Tips', keyword: 'remote work productivity', content: '# How to Stay Productive Working from Home...', metaTitle: 'Remote Work Productivity Tips | Work from Home Guide', metaDesc: 'Boost your remote work productivity with these proven tips and strategies.', status: 'completed' },
-    { title: 'SaaS Marketing Guide', keyword: 'SaaS marketing strategies', content: '# Effective SaaS Marketing Strategies...', metaTitle: 'SaaS Marketing Strategies That Work | 2024 Guide', metaDesc: 'Learn proven SaaS marketing strategies to grow your software business.', status: 'completed' },
-    { title: 'SEO Basics Article', keyword: 'SEO for beginners', content: '# SEO Fundamentals for Beginners...', metaTitle: 'SEO Basics for Beginners | Complete Guide 2024', metaDesc: 'Master SEO basics with our comprehensive beginner guide. Learn keywords, links, and more.', status: 'completed' },
-    { title: 'E-commerce Guide', keyword: 'start online store', content: '# How to Start Your Online Store...', metaTitle: 'Start an Online Store in 2024 | Step-by-Step Guide', metaDesc: 'Complete guide to starting your online store. Platform selection, products, and marketing.', status: 'completed' },
-    { title: 'Email Marketing Tips', keyword: 'email marketing best practices', content: '# Email Marketing Best Practices...', metaTitle: 'Email Marketing Best Practices | Boost Open Rates', metaDesc: 'Improve your email marketing with these best practices for higher engagement.', status: 'completed' },
-    { title: 'Social Media Strategy', keyword: 'social media marketing 2024', content: '# Social Media Marketing Trends 2024...', metaTitle: 'Social Media Marketing 2024 | Trends & Strategies', metaDesc: 'Stay ahead with 2024 social media marketing trends and proven strategies.', status: 'completed' },
-    { title: 'Content Marketing ROI', keyword: 'content marketing ROI', content: '# Measuring Content Marketing ROI...', metaTitle: 'How to Measure Content Marketing ROI | Complete Guide', metaDesc: 'Learn how to track and measure your content marketing return on investment.', status: 'completed' },
-    { title: 'Landing Page Guide', keyword: 'landing page optimization', content: '# Landing Page Optimization Tips...', metaTitle: 'Landing Page Optimization | Boost Conversions', metaDesc: 'Optimize your landing pages for higher conversions with these proven tips.', status: 'completed' },
-    { title: 'PPC Advertising Guide', keyword: 'PPC advertising tips', content: '# PPC Advertising Best Practices...', metaTitle: 'PPC Advertising Tips | Maximize Your Ad Spend', metaDesc: 'Get more from your PPC campaigns with these expert advertising tips.', status: 'pending' },
-    { title: 'Video Marketing', keyword: 'video marketing strategy', content: '# Video Marketing Strategy Guide...', metaTitle: 'Video Marketing Strategy 2024 | Complete Guide', metaDesc: 'Create an effective video marketing strategy with our comprehensive guide.', status: 'completed' },
-    { title: 'Podcast Growth', keyword: 'grow podcast audience', content: '# How to Grow Your Podcast Audience...', metaTitle: 'Grow Your Podcast Audience | Proven Strategies', metaDesc: 'Effective strategies to grow your podcast audience and increase downloads.', status: 'completed' },
-    { title: 'Influencer Marketing', keyword: 'influencer marketing guide', content: '# Influencer Marketing Complete Guide...', metaTitle: 'Influencer Marketing Guide | Find & Work with Influencers', metaDesc: 'Learn how to find and work with influencers for your marketing campaigns.', status: 'completed' },
-    { title: 'Local SEO Tips', keyword: 'local SEO strategies', content: '# Local SEO Strategies for Small Business...', metaTitle: 'Local SEO Strategies | Rank Higher Locally', metaDesc: 'Boost your local search rankings with these proven local SEO strategies.', status: 'completed' },
-    { title: 'Blog Traffic Guide', keyword: 'increase blog traffic', content: '# How to Increase Blog Traffic...', metaTitle: 'Increase Blog Traffic | Proven Methods 2024', metaDesc: 'Drive more traffic to your blog with these effective and proven methods.', status: 'completed' }
-  ];
-
-  for (const seo of seoContents) {
-    await prisma.sEOContent.create({ data: { ...seo, userId: user.id } });
+  // --- Translation ---
+  const existingTranslationCount = await prisma.translation.count();
+  if (existingTranslationCount === 0) {
+    const translationItems = [
+      { title: 'Website Homepage - Spanish', originalText: 'Welcome to our AI-powered content creation platform. Create amazing content in minutes.', sourceLang: 'en', targetLang: 'es', status: 'completed' },
+      { title: 'Marketing Email - French', originalText: 'Discover our new features that will transform your workflow. Get started today!', sourceLang: 'en', targetLang: 'fr', status: 'completed' },
+      { title: 'Product Guide - German', originalText: 'This guide will walk you through the key features of our platform step by step.', sourceLang: 'en', targetLang: 'de', status: 'pending' },
+      { title: 'App Store Listing - Japanese', originalText: 'The ultimate AI tool for creating professional content. Download now and start creating!', sourceLang: 'en', targetLang: 'ja', status: 'completed' },
+      { title: 'Legal Terms - Portuguese', originalText: 'By using our service, you agree to these terms and conditions outlined below.', sourceLang: 'en', targetLang: 'pt', status: 'completed' },
+      { title: 'Customer Support - Korean', originalText: 'How can we help you today? Our team is available 24/7 for assistance.', sourceLang: 'en', targetLang: 'ko', status: 'pending' },
+      { title: 'Social Post - Italian', originalText: 'Check out our latest update! New AI features that save you hours every day.', sourceLang: 'en', targetLang: 'it', status: 'completed' },
+      { title: 'Press Release - Chinese', originalText: 'We are excited to announce our expansion into the Asian market this quarter.', sourceLang: 'en', targetLang: 'zh', status: 'completed' },
+      { title: 'Blog Article - Spanish', originalText: 'Content marketing is evolving rapidly with AI. Here are the top trends for this year.', sourceLang: 'en', targetLang: 'es', status: 'pending' },
+      { title: 'Onboarding Flow - French', originalText: 'Welcome aboard! Let us show you around. First, create your workspace.', sourceLang: 'en', targetLang: 'fr', status: 'completed' },
+      { title: 'Error Messages - German', originalText: 'Something went wrong. Please try again or contact support for assistance.', sourceLang: 'en', targetLang: 'de', status: 'completed' },
+      { title: 'Newsletter - Arabic', originalText: 'This week in tech: AI breakthroughs, industry news, and tips from experts.', sourceLang: 'en', targetLang: 'ar', status: 'pending' },
+      { title: 'Video Subtitles - Hindi', originalText: 'In this tutorial, we will learn how to create engaging content using AI tools.', sourceLang: 'en', targetLang: 'hi', status: 'completed' },
+      { title: 'FAQ Page - Russian', originalText: 'What is AI Content Studio? It is a platform that helps you create content using AI.', sourceLang: 'en', targetLang: 'ru', status: 'completed' },
+      { title: 'Ad Copy - Japanese', originalText: 'Boost your productivity by 10x. Try our AI content creator free for 14 days!', sourceLang: 'en', targetLang: 'ja', status: 'pending' }
+    ];
+    for (const item of translationItems) {
+      await prisma.translation.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Translations seeded (15 items)');
   }
-  console.log('✅ SEO content seeded (15 items)');
 
-  // Seed Social Posts (15+ items)
-  const socialPosts = [
-    { title: 'Product Launch Tweet', platform: 'twitter', prompt: 'Announce new product launch', content: 'Exciting news! Our new AI-powered tool is here. Transform your workflow today.', hashtags: '#AI #ProductLaunch #Innovation', status: 'completed' },
-    { title: 'Instagram Story Promo', platform: 'instagram', prompt: 'Promote summer sale', content: 'Summer vibes + amazing deals = perfect combo. Shop now and save 30%!', hashtags: '#SummerSale #Shopping #Deals #Fashion', status: 'completed' },
-    { title: 'LinkedIn Thought Leader', platform: 'linkedin', prompt: 'Share industry insight', content: 'The future of work is not about where we work, but how we collaborate. Here are 3 trends reshaping the workplace...', hashtags: '#FutureOfWork #Leadership #Business', status: 'completed' },
-    { title: 'Facebook Event Promo', platform: 'facebook', prompt: 'Promote webinar event', content: 'Join us this Thursday for an exclusive webinar on digital marketing trends. Limited spots available!', hashtags: '#Webinar #DigitalMarketing #FreeEvent', status: 'completed' },
-    { title: 'TikTok Trend', platform: 'tiktok', prompt: 'Jump on viral trend', content: 'POV: When your AI assistant understands you better than your friends', hashtags: '#AI #POV #Relatable #TechTok #Viral', status: 'completed' },
-    { title: 'Twitter Thread', platform: 'twitter', prompt: 'Educational thread about SEO', content: 'Thread: 10 SEO mistakes killing your rankings. Let me share what I have learned after analyzing 100+ websites...', hashtags: '#SEO #DigitalMarketing #Thread', status: 'completed' },
-    { title: 'Instagram Carousel', platform: 'instagram', prompt: 'Share productivity tips', content: '5 productivity hacks that changed my life. Swipe to transform your daily routine!', hashtags: '#Productivity #LifeHacks #GrowthMindset #Success', status: 'completed' },
-    { title: 'LinkedIn Case Study', platform: 'linkedin', prompt: 'Share client success story', content: 'How we helped Company X increase revenue by 150% in 6 months. Here is the strategy...', hashtags: '#CaseStudy #Growth #BusinessSuccess', status: 'completed' },
-    { title: 'Facebook Community Post', platform: 'facebook', prompt: 'Engage community with question', content: 'Question for our community: What is your biggest challenge with remote work? Drop your answers below!', hashtags: '#Community #RemoteWork #Discussion', status: 'completed' },
-    { title: 'Twitter Poll', platform: 'twitter', prompt: 'Create engagement poll', content: 'Quick poll: What is your preferred content format? A) Blog posts B) Videos C) Podcasts D) Infographics', hashtags: '#Poll #ContentMarketing #Engagement', status: 'pending' },
-    { title: 'Instagram Reel Idea', platform: 'instagram', prompt: 'Behind the scenes content', content: 'Behind the scenes of how we create content. The messy reality nobody shows you!', hashtags: '#BTS #ContentCreation #RealTalk #CreatorLife', status: 'completed' },
-    { title: 'LinkedIn Article Promo', platform: 'linkedin', prompt: 'Promote new blog article', content: 'New article alert! "The Complete Guide to B2B Marketing in 2024" - Link in comments.', hashtags: '#B2BMarketing #MarketingStrategy #NewPost', status: 'completed' },
-    { title: 'TikTok Tutorial', platform: 'tiktok', prompt: 'Quick how-to tutorial', content: 'How to edit photos like a pro in 30 seconds. Save this for later!', hashtags: '#PhotoEditing #Tutorial #LearnOnTikTok #HowTo', status: 'completed' },
-    { title: 'Facebook Live Announcement', platform: 'facebook', prompt: 'Announce upcoming live session', content: 'Going LIVE tomorrow at 3PM EST! Q&A session about starting your business. Drop your questions below!', hashtags: '#FacebookLive #QandA #Entrepreneur', status: 'completed' },
-    { title: 'Twitter Milestone', platform: 'twitter', prompt: 'Celebrate company milestone', content: 'We just hit 10,000 customers! Thank you for being part of our journey. This is just the beginning...', hashtags: '#Milestone #ThankYou #Growth', status: 'completed' }
-  ];
-
-  for (const post of socialPosts) {
-    await prisma.socialPost.create({ data: { ...post, userId: user.id } });
+  // --- Summary ---
+  const existingSummaryCount = await prisma.summary.count();
+  if (existingSummaryCount === 0) {
+    const summaryItems = [
+      { title: 'Q1 Earnings Report Summary', originalText: 'The company reported strong Q1 results with revenue up 35% year-over-year to $125M. Operating margins improved to 22% from 18% in the prior year. Customer count grew to 15,000 enterprise accounts. The company raised full-year guidance citing strong demand for AI products.', length: 'short', status: 'completed' },
+      { title: 'Research Paper Abstract', originalText: 'This paper explores the applications of large language models in automated content generation. We analyze 500 outputs across multiple domains and evaluate quality using human raters and automated metrics. Results show that AI-generated content achieves 85% parity with human-written content in readability and engagement metrics.', length: 'medium', status: 'completed' },
+      { title: 'Meeting Notes Summary', originalText: 'The team discussed the roadmap for Q2. Key decisions: 1) Launch the new editor by March 15. 2) Hire two more engineers. 3) Integrate with Slack and Notion. 4) Redesign the onboarding flow. Budget approved for $200K for new initiatives. Next meeting scheduled for next Monday.', length: 'short', status: 'pending' },
+      { title: 'Legal Contract Overview', originalText: 'This Master Service Agreement outlines the terms between Company A and Company B for a 3-year engagement. Services include software development, maintenance, and support. Total contract value is $1.5M with quarterly payments. SLA guarantees 99.9% uptime. Termination requires 90 days notice.', length: 'short', status: 'completed' },
+      { title: 'Industry Report Digest', originalText: 'The global AI market is projected to reach $407B by 2027, growing at a CAGR of 36.2%. Key growth drivers include enterprise adoption, generative AI tools, and automation. North America leads with 40% market share, followed by Asia Pacific. Healthcare, finance, and marketing are the fastest-growing sectors.', length: 'medium', status: 'completed' },
+      { title: 'Book Summary: Lean Startup', originalText: 'The Lean Startup by Eric Ries proposes a methodology for developing businesses and products. The core idea is build-measure-learn: create a minimum viable product, test it with real customers, gather feedback, and iterate. Key concepts include validated learning, innovation accounting, and the pivot-or-persevere decision.', length: 'long', status: 'pending' },
+      { title: 'Competitor Analysis Brief', originalText: 'Competitor X launched three new features this quarter: AI writing assistant, team collaboration tools, and analytics dashboard. Their pricing increased 15%. They reported 50K new users and expanded to 5 new markets. Strengths include brand recognition. Weaknesses include slow customer support and limited integrations.', length: 'short', status: 'completed' },
+      { title: 'Webinar Transcript Summary', originalText: 'The webinar covered best practices for content marketing in 2024. Speaker highlighted the importance of video content, AI tools, and data-driven strategies. Q&A session covered topics like ROI measurement, team structure, and tool recommendations. Attendee engagement was high with 500+ participants.', length: 'medium', status: 'completed' },
+      { title: 'Product Review Compilation', originalText: 'Users praised the intuitive interface and AI quality. Common positive themes: ease of use (mentioned 120 times), content quality (98 times), speed (85 times). Negative themes: pricing concerns (45 times), occasional inaccuracies (30 times), limited export options (22 times). Overall rating: 4.5/5 stars from 500 reviews.', length: 'short', status: 'pending' },
+      { title: 'Technical Documentation', originalText: 'The API provides RESTful endpoints for content generation. Authentication uses JWT tokens. Rate limits are 100 requests per minute for free tier and 1000 for paid. Supported output formats include JSON, Markdown, and HTML. Webhooks are available for async generation. SDKs available for Python, JavaScript, and Ruby.', length: 'medium', status: 'completed' },
+      { title: 'News Article Digest', originalText: 'Tech giants are investing heavily in AI infrastructure. Google announced a $10B AI research center. Microsoft expanded Azure AI services. Amazon launched new machine learning tools for developers. The competition for AI talent intensifies with average salaries rising 25% year-over-year.', length: 'short', status: 'completed' },
+      { title: 'Customer Feedback Synthesis', originalText: 'Survey results from 1,000 customers show 92% satisfaction rate. Top feature requests: mobile app (340 votes), dark mode (280 votes), and API improvements (220 votes). Churn reasons include pricing (35%), feature gaps (28%), and switching to competitors (20%). NPS score improved from 45 to 62.', length: 'medium', status: 'pending' },
+      { title: 'Policy Document Summary', originalText: 'The new data privacy policy implements GDPR and CCPA compliance. Key changes include explicit consent requirements, data portability rights, 30-day deletion timeline, and mandatory breach notifications. All employees must complete privacy training by month end. Third-party audits will be conducted quarterly.', length: 'short', status: 'completed' },
+      { title: 'Strategy Document Brief', originalText: 'The 2024 growth strategy focuses on three pillars: product innovation, market expansion, and customer retention. Target: 100% revenue growth. Initiatives include AI model improvements, launching in Europe and Asia, and a new enterprise tier. Budget allocation: 40% R&D, 30% sales, 20% marketing, 10% operations.', length: 'long', status: 'completed' },
+      { title: 'Interview Transcript', originalText: 'CEO discussed company vision for the next 5 years. Key themes: AI-first approach, sustainability, and democratizing content creation. Plans to double headcount and open offices in London and Singapore. Revenue target of $500M by 2027. Emphasized culture of innovation and customer obsession.', length: 'medium', status: 'pending' }
+    ];
+    for (const item of summaryItems) {
+      await prisma.summary.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Summaries seeded (15 items)');
   }
-  console.log('✅ Social posts seeded (15 items)');
 
-  // Seed Emails (15+ items)
-  const emails = [
-    { title: 'Welcome Email', type: 'welcome', prompt: 'Welcome new subscribers', subject: 'Welcome to the family!', body: 'Dear [Name],\n\nWelcome aboard! We are thrilled to have you...', status: 'completed' },
-    { title: 'Product Launch Email', type: 'marketing', prompt: 'Announce new product', subject: 'Introducing Our Game-Changing New Product', body: 'Big news! We have been working on something special...', status: 'completed' },
-    { title: 'Weekly Newsletter', type: 'newsletter', prompt: 'Weekly content digest', subject: 'This Week: Top Stories & Updates', body: 'Happy Friday! Here is what you might have missed this week...', status: 'completed' },
-    { title: 'Flash Sale Alert', type: 'marketing', prompt: 'Promote 24-hour sale', subject: '24 Hours Only: 50% Off Everything!', body: 'The clock is ticking! Our biggest sale of the year is here...', status: 'completed' },
-    { title: 'Follow-up Email', type: 'followup', prompt: 'Follow up with leads', subject: 'Quick follow-up on our conversation', body: 'Hi [Name],\n\nI wanted to circle back on our discussion...', status: 'completed' },
-    { title: 'Abandoned Cart', type: 'marketing', prompt: 'Recover abandoned cart', subject: 'You forgot something...', body: 'Hey [Name],\n\nYour cart misses you! Complete your purchase...', status: 'completed' },
-    { title: 'Event Invitation', type: 'announcement', prompt: 'Invite to annual conference', subject: 'You are Invited: Annual Tech Summit 2024', body: 'Join industry leaders for our biggest event yet...', status: 'completed' },
-    { title: 'Customer Feedback Request', type: 'followup', prompt: 'Request product feedback', subject: 'We value your opinion', body: 'Hi [Name],\n\nYour feedback helps us improve...', status: 'completed' },
-    { title: 'Re-engagement Email', type: 'marketing', prompt: 'Re-engage inactive users', subject: 'We miss you! Here is 20% off to welcome you back', body: 'It has been a while since we have seen you...', status: 'completed' },
-    { title: 'Feature Update', type: 'announcement', prompt: 'Announce new features', subject: 'New Features You will Love', body: 'Exciting updates! Check out what is new...', status: 'pending' },
-    { title: 'Holiday Greeting', type: 'newsletter', prompt: 'Holiday season greeting', subject: 'Happy Holidays from Our Team!', body: 'Wishing you joy and happiness this holiday season...', status: 'completed' },
-    { title: 'Subscription Renewal', type: 'marketing', prompt: 'Remind about subscription renewal', subject: 'Your subscription is expiring soon', body: 'Hi [Name],\n\nYour subscription expires in 7 days...', status: 'completed' },
-    { title: 'Thank You Email', type: 'followup', prompt: 'Thank customers for purchase', subject: 'Thank You for Your Order!', body: 'Your order is confirmed! Here is what is next...', status: 'completed' },
-    { title: 'Referral Program', type: 'marketing', prompt: 'Promote referral program', subject: 'Give $20, Get $20 - Share the Love!', body: 'Love our product? Share it with friends and earn rewards...', status: 'completed' },
-    { title: 'Survey Invitation', type: 'followup', prompt: 'Invite to customer survey', subject: 'Quick Survey - Win a $100 Gift Card!', body: 'Your opinion matters! Take our 2-minute survey...', status: 'completed' }
-  ];
-
-  for (const email of emails) {
-    await prisma.email.create({ data: { ...email, userId: user.id } });
+  // --- SEOContent ---
+  const existingSEOCount = await prisma.sEOContent.count();
+  if (existingSEOCount === 0) {
+    const seoItems = [
+      { title: 'AI Content Generation Guide', keyword: 'AI content generation', status: 'completed' },
+      { title: 'Best Marketing Automation Tools', keyword: 'marketing automation tools', status: 'completed' },
+      { title: 'How to Write Blog Posts Fast', keyword: 'write blog posts fast', status: 'pending' },
+      { title: 'Content Strategy Template', keyword: 'content strategy template', status: 'completed' },
+      { title: 'SEO Writing Tips 2024', keyword: 'SEO writing tips', status: 'completed' },
+      { title: 'Social Media Marketing Guide', keyword: 'social media marketing guide', status: 'pending' },
+      { title: 'Email Marketing Best Practices', keyword: 'email marketing best practices', status: 'completed' },
+      { title: 'Video Marketing Strategy', keyword: 'video marketing strategy', status: 'completed' },
+      { title: 'Podcast Growth Hacks', keyword: 'podcast growth hacks', status: 'pending' },
+      { title: 'Landing Page Optimization', keyword: 'landing page optimization', status: 'completed' },
+      { title: 'Conversion Rate Tips', keyword: 'conversion rate optimization tips', status: 'completed' },
+      { title: 'B2B Content Marketing', keyword: 'B2B content marketing', status: 'pending' },
+      { title: 'Copywriting Formulas', keyword: 'copywriting formulas', status: 'completed' },
+      { title: 'Local SEO Guide', keyword: 'local SEO for small business', status: 'completed' },
+      { title: 'Link Building Strategies', keyword: 'link building strategies 2024', status: 'pending' }
+    ];
+    for (const item of seoItems) {
+      await prisma.sEOContent.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ SEO Content seeded (15 items)');
   }
-  console.log('✅ Emails seeded (15 items)');
 
-  // Seed Blog Posts (15+ items)
-  const blogPosts = [
-    { title: '10 AI Tools Every Marketer Needs', topic: 'AI marketing tools', keywords: 'AI, marketing, automation, tools', content: '# 10 AI Tools Every Marketer Needs in 2024\n\nArtificial intelligence is revolutionizing marketing...', excerpt: 'Discover the AI tools transforming digital marketing...', status: 'completed' },
-    { title: 'Remote Work Best Practices', topic: 'Remote work productivity', keywords: 'remote work, productivity, WFH', content: '# Remote Work Best Practices for 2024\n\nAs remote work becomes the norm...', excerpt: 'Master remote work with these proven strategies...', status: 'completed' },
-    { title: 'SEO Trends to Watch', topic: 'SEO trends 2024', keywords: 'SEO, Google, search, rankings', content: '# SEO Trends That Will Dominate 2024\n\nSearch engine optimization is evolving...', excerpt: 'Stay ahead with these emerging SEO trends...', status: 'completed' },
-    { title: 'Building a Personal Brand', topic: 'Personal branding guide', keywords: 'personal brand, LinkedIn, career', content: '# How to Build a Powerful Personal Brand\n\nIn today\'s digital age...', excerpt: 'Create a personal brand that opens doors...', status: 'completed' },
-    { title: 'Email Marketing Mastery', topic: 'Email marketing strategies', keywords: 'email, marketing, conversion', content: '# Email Marketing Mastery: A Complete Guide\n\nEmail marketing remains one of the highest ROI channels...', excerpt: 'Unlock the power of email marketing...', status: 'completed' },
-    { title: 'Content Strategy Framework', topic: 'Content marketing strategy', keywords: 'content, strategy, marketing', content: '# Building a Winning Content Strategy\n\nContent is king, but strategy is the kingdom...', excerpt: 'Create content that converts with this framework...', status: 'completed' },
-    { title: 'Social Media Algorithms', topic: 'Understanding social algorithms', keywords: 'social media, algorithm, engagement', content: '# Decoding Social Media Algorithms\n\nEver wonder why some posts go viral...', excerpt: 'Master social media algorithms for better reach...', status: 'completed' },
-    { title: 'Startup Funding Guide', topic: 'Raising startup funding', keywords: 'startup, funding, VC, investment', content: '# The Complete Guide to Startup Funding\n\nSecuring funding is a crucial milestone...', excerpt: 'Navigate the funding landscape with confidence...', status: 'completed' },
-    { title: 'UX Design Principles', topic: 'UX design fundamentals', keywords: 'UX, design, user experience', content: '# Essential UX Design Principles\n\nGreat user experience doesn\'t happen by accident...', excerpt: 'Design better products with these UX principles...', status: 'completed' },
-    { title: 'Podcast Launch Guide', topic: 'Starting a podcast', keywords: 'podcast, audio, content creation', content: '# How to Launch a Successful Podcast\n\nPodcasting has exploded in popularity...', excerpt: 'Start your podcast journey with this complete guide...', status: 'pending' },
-    { title: 'E-commerce Conversion Tips', topic: 'E-commerce optimization', keywords: 'ecommerce, conversion, sales', content: '# Boost Your E-commerce Conversions\n\nEvery visitor is a potential customer...', excerpt: 'Turn browsers into buyers with these tips...', status: 'completed' },
-    { title: 'Leadership in Remote Teams', topic: 'Managing remote teams', keywords: 'leadership, remote, management', content: '# Leading Remote Teams Effectively\n\nRemote leadership requires a different approach...', excerpt: 'Lead distributed teams to success...', status: 'completed' },
-    { title: 'Data Privacy Compliance', topic: 'GDPR and data privacy', keywords: 'GDPR, privacy, compliance, data', content: '# Data Privacy Compliance Guide\n\nData privacy is not just legal requirement...', excerpt: 'Stay compliant with data protection regulations...', status: 'completed' },
-    { title: 'Video Marketing ROI', topic: 'Video marketing effectiveness', keywords: 'video, marketing, ROI, YouTube', content: '# Maximizing Video Marketing ROI\n\nVideo content continues to dominate...', excerpt: 'Get more from your video marketing efforts...', status: 'completed' },
-    { title: 'Customer Retention Strategies', topic: 'Retaining customers', keywords: 'retention, loyalty, customers', content: '# Customer Retention Strategies That Work\n\nAcquiring customers is expensive...', excerpt: 'Keep customers coming back for more...', status: 'completed' }
-  ];
-
-  for (const blog of blogPosts) {
-    await prisma.blogPost.create({ data: { ...blog, userId: user.id } });
+  // --- SocialPost ---
+  const existingSocialCount = await prisma.socialPost.count();
+  if (existingSocialCount === 0) {
+    const socialItems = [
+      { title: 'Product Launch Announcement', platform: 'twitter', prompt: 'Announce our new AI content generator with excitement', status: 'completed' },
+      { title: 'Behind the Scenes', platform: 'instagram', prompt: 'Show our team working on the latest features', status: 'completed' },
+      { title: 'Industry Insights', platform: 'linkedin', prompt: 'Share insights about AI trends in content marketing', status: 'pending' },
+      { title: 'Customer Spotlight', platform: 'facebook', prompt: 'Feature a customer success story with metrics', status: 'completed' },
+      { title: 'Quick Tips Thread', platform: 'twitter', prompt: 'Thread of 10 productivity tips for content creators', status: 'completed' },
+      { title: 'Team Celebration', platform: 'instagram', prompt: 'Celebrate reaching 10,000 users milestone', status: 'pending' },
+      { title: 'Thought Leadership', platform: 'linkedin', prompt: 'Deep dive into the future of AI-powered marketing', status: 'completed' },
+      { title: 'Poll: Favorite Feature', platform: 'twitter', prompt: 'Engage audience with a poll about their favorite features', status: 'completed' },
+      { title: 'Tutorial Reel', platform: 'tiktok', prompt: '60-second tutorial on using AI to write blog posts', status: 'pending' },
+      { title: 'Motivational Monday', platform: 'instagram', prompt: 'Inspirational quote about creativity and technology', status: 'completed' },
+      { title: 'New Feature Alert', platform: 'facebook', prompt: 'Announce the new analytics dashboard feature', status: 'completed' },
+      { title: 'AMA Announcement', platform: 'linkedin', prompt: 'Announce upcoming Ask Me Anything session with CEO', status: 'pending' },
+      { title: 'User Generated Content', platform: 'instagram', prompt: 'Showcase amazing content created by our users', status: 'completed' },
+      { title: 'Trending Topic Take', platform: 'twitter', prompt: 'Our take on the latest AI developments in the news', status: 'completed' },
+      { title: 'Weekend Challenge', platform: 'tiktok', prompt: 'Fun weekend content creation challenge for followers', status: 'pending' }
+    ];
+    for (const item of socialItems) {
+      await prisma.socialPost.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Social Posts seeded (15 items)');
   }
-  console.log('✅ Blog posts seeded (15 items)');
 
-  // Seed Marketing Copy (15+ items)
-  const marketingCopies = [
-    { title: 'SaaS Landing Page', product: 'Project management software', targetAud: 'Small business owners', content: 'Tired of juggling spreadsheets? Streamline your workflow...', headline: 'Manage Projects Like a Pro', callToAction: 'Start Free Trial', status: 'completed' },
-    { title: 'Fitness App Promo', product: 'AI fitness coaching app', targetAud: 'Health-conscious millennials', content: 'Your personal trainer in your pocket...', headline: 'Transform Your Body with AI', callToAction: 'Download Free', status: 'completed' },
-    { title: 'Online Course Sales', product: 'Digital marketing course', targetAud: 'Career changers', content: 'Learn the skills that pay the bills...', headline: 'Become a Digital Marketing Expert', callToAction: 'Enroll Now - 50% Off', status: 'completed' },
-    { title: 'E-commerce Fashion', product: 'Sustainable clothing line', targetAud: 'Eco-conscious consumers', content: 'Look good while doing good for the planet...', headline: 'Fashion That Doesn\'t Cost the Earth', callToAction: 'Shop Sustainable', status: 'completed' },
-    { title: 'B2B Software', product: 'Enterprise CRM solution', targetAud: 'Sales directors', content: 'Close more deals with intelligent insights...', headline: 'CRM That Actually Helps You Sell', callToAction: 'Request Demo', status: 'completed' },
-    { title: 'Food Delivery Service', product: 'Healthy meal delivery', targetAud: 'Busy professionals', content: 'Chef-prepared meals delivered to your door...', headline: 'Healthy Eating Made Effortless', callToAction: 'Get 30% Off First Order', status: 'completed' },
-    { title: 'Financial App', product: 'Investment tracking app', targetAud: 'Young investors', content: 'Take control of your financial future...', headline: 'Investing Made Simple', callToAction: 'Start Investing Today', status: 'completed' },
-    { title: 'Travel Booking Platform', product: 'Travel deals aggregator', targetAud: 'Adventure seekers', content: 'Discover hidden gems and save big...', headline: 'Your Next Adventure Awaits', callToAction: 'Find Your Escape', status: 'completed' },
-    { title: 'Productivity Tool', product: 'Note-taking app', targetAud: 'Students and researchers', content: 'Capture ideas at the speed of thought...', headline: 'Notes That Think With You', callToAction: 'Try Free Forever', status: 'completed' },
-    { title: 'Home Security', product: 'Smart home security system', targetAud: 'Homeowners', content: 'Protect what matters most...', headline: 'Peace of Mind, 24/7', callToAction: 'Get Protected Now', status: 'pending' },
-    { title: 'Pet Product', product: 'Premium dog food brand', targetAud: 'Dog owners', content: 'Give your best friend the best nutrition...', headline: 'Food Your Dog Will Actually Love', callToAction: 'Try Risk-Free', status: 'completed' },
-    { title: 'Gaming Accessories', product: 'Pro gaming headset', targetAud: 'Gamers', content: 'Hear every footstep, gain every advantage...', headline: 'Level Up Your Gaming', callToAction: 'Shop Now', status: 'completed' },
-    { title: 'Educational Platform', product: 'Kids learning app', targetAud: 'Parents', content: 'Make learning fun and engaging...', headline: 'Education That Kids Love', callToAction: 'Start Learning Free', status: 'completed' },
-    { title: 'Consulting Services', product: 'Business consulting firm', targetAud: 'CEOs and executives', content: 'Transform challenges into opportunities...', headline: 'Strategic Growth Partners', callToAction: 'Schedule Consultation', status: 'completed' },
-    { title: 'Skincare Brand', product: 'Natural skincare line', targetAud: 'Beauty enthusiasts', content: 'Nature\'s best for your skin...', headline: 'Glow Naturally', callToAction: 'Discover Your Routine', status: 'completed' }
-  ];
-
-  for (const copy of marketingCopies) {
-    await prisma.marketingCopy.create({ data: { ...copy, userId: user.id } });
+  // --- Email ---
+  const existingEmailCount = await prisma.email.count();
+  if (existingEmailCount === 0) {
+    const emailItems = [
+      { title: 'Welcome Email', type: 'welcome', prompt: 'Warm welcome email for new users with getting started tips', status: 'completed' },
+      { title: 'Weekly Newsletter', type: 'newsletter', prompt: 'Weekly roundup of AI content creation tips and news', status: 'completed' },
+      { title: 'Product Update', type: 'announcement', prompt: 'Announce three new features launched this month', status: 'pending' },
+      { title: 'Re-engagement Campaign', type: 'marketing', prompt: 'Win back inactive users with a special offer', status: 'completed' },
+      { title: 'Onboarding Day 3', type: 'followup', prompt: 'Third day onboarding email with advanced feature tips', status: 'completed' },
+      { title: 'Black Friday Promo', type: 'marketing', prompt: '50% off Black Friday promotion for annual plans', status: 'pending' },
+      { title: 'Survey Request', type: 'followup', prompt: 'Request customer feedback through NPS survey', status: 'completed' },
+      { title: 'Feature Spotlight', type: 'newsletter', prompt: 'Deep dive into the AI writing assistant feature', status: 'completed' },
+      { title: 'Referral Program', type: 'marketing', prompt: 'Invite friends referral program announcement', status: 'pending' },
+      { title: 'Year in Review', type: 'newsletter', prompt: 'Annual review of user achievements and platform stats', status: 'completed' },
+      { title: 'Trial Expiring', type: 'followup', prompt: 'Reminder that free trial expires in 3 days', status: 'completed' },
+      { title: 'Webinar Invite', type: 'announcement', prompt: 'Invitation to exclusive content marketing masterclass', status: 'pending' },
+      { title: 'Case Study Share', type: 'marketing', prompt: 'Share a customer success story with compelling results', status: 'completed' },
+      { title: 'Tips & Tricks', type: 'newsletter', prompt: 'Monthly tips and tricks for better content creation', status: 'completed' },
+      { title: 'Account Upgrade', type: 'marketing', prompt: 'Encourage free users to upgrade to premium plan', status: 'pending' }
+    ];
+    for (const item of emailItems) {
+      await prisma.email.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Emails seeded (15 items)');
   }
-  console.log('✅ Marketing copy seeded (15 items)');
 
-  // Seed Scripts (15+ items)
-  const scripts = [
-    { title: 'Product Demo Video', type: 'video', topic: 'Software product demonstration', content: '[SCENE 1: Open on dashboard]\nNARRATOR: Welcome to the future of productivity...', duration: 5, status: 'completed' },
-    { title: 'Company Overview', type: 'video', topic: 'Company introduction and values', content: '[SCENE 1: Aerial shot of office]\nNARRATOR: Every great company starts with a vision...', duration: 3, status: 'completed' },
-    { title: 'Tutorial: Basic Features', type: 'video', topic: 'Getting started tutorial', content: '[SCENE 1: Screen recording]\nHOST: Hey everyone! Today I will show you how to get started...', duration: 10, status: 'completed' },
-    { title: 'Customer Story', type: 'video', topic: 'Customer success testimonial', content: '[SCENE 1: Customer office]\nCUSTOMER: Before using this product, we were struggling...', duration: 4, status: 'completed' },
-    { title: 'Podcast Intro Episode', type: 'podcast', topic: 'Podcast series introduction', content: '[INTRO MUSIC]\nHOST: Welcome to the very first episode of Tech Talks...', duration: 30, status: 'completed' },
-    { title: 'Interview Script', type: 'podcast', topic: 'CEO interview episode', content: '[INTRO]\nHOST: Today we have a special guest...', duration: 45, status: 'completed' },
-    { title: 'How-To Guide', type: 'video', topic: 'Step-by-step process explanation', content: '[SCENE 1: Title card]\nNARRATOR: In this video, you will learn exactly how to...', duration: 8, status: 'completed' },
-    { title: 'Animated Explainer', type: 'video', topic: 'Complex concept explanation', content: '[SCENE 1: Animation - character appears]\nNARRATOR: Imagine a world where...', duration: 2, status: 'completed' },
-    { title: 'Webinar Script', type: 'presentation', topic: 'Marketing strategies webinar', content: '[SLIDE 1: Welcome]\nHOST: Good afternoon everyone, thank you for joining us...', duration: 60, status: 'completed' },
-    { title: 'Radio Ad', type: 'audio', topic: '30-second radio commercial', content: '[SFX: Upbeat music]\nANNCR: Are you tired of...', duration: 1, status: 'pending' },
-    { title: 'Training Module', type: 'video', topic: 'Employee onboarding training', content: '[SCENE 1: Welcome screen]\nNARRATOR: Welcome to your first day at...', duration: 15, status: 'completed' },
-    { title: 'Social Media Video', type: 'video', topic: 'TikTok/Reels style content', content: '[HOOK - 0:01]\nSPEAKER: Stop scrolling! You need to see this...', duration: 1, status: 'completed' },
-    { title: 'Documentary Short', type: 'video', topic: 'Industry documentary', content: '[SCENE 1: Wide establishing shot]\nNARRATOR: In the heart of Silicon Valley...', duration: 20, status: 'completed' },
-    { title: 'Sales Pitch Video', type: 'video', topic: 'B2B sales presentation', content: '[SCENE 1: Problem statement]\nNARRATOR: Every sales team faces the same challenge...', duration: 6, status: 'completed' },
-    { title: 'Event Promo', type: 'video', topic: 'Conference promotional video', content: '[SCENE 1: Fast cuts of past events]\nNARRATOR: The biggest event of the year is back...', duration: 2, status: 'completed' }
-  ];
-
-  for (const script of scripts) {
-    await prisma.script.create({ data: { ...script, userId: user.id } });
+  // --- BlogPost ---
+  const existingBlogCount = await prisma.blogPost.count();
+  if (existingBlogCount === 0) {
+    const blogItems = [
+      { title: 'The Future of AI Content Creation', topic: 'How AI is revolutionizing the way we create content', keywords: 'AI, content creation, future', status: 'completed' },
+      { title: '10 SEO Tips for 2024', topic: 'Actionable SEO strategies that work in the current landscape', keywords: 'SEO, tips, ranking, Google', status: 'completed' },
+      { title: 'Content Marketing ROI Guide', topic: 'How to measure and improve your content marketing ROI', keywords: 'content marketing, ROI, metrics', status: 'pending' },
+      { title: 'Building a Content Calendar', topic: 'Step-by-step guide to creating an effective content calendar', keywords: 'content calendar, planning, strategy', status: 'completed' },
+      { title: 'Email Marketing Mastery', topic: 'Advanced email marketing techniques for higher conversion', keywords: 'email marketing, conversion, campaigns', status: 'completed' },
+      { title: 'Social Media Trends', topic: 'Top social media trends shaping digital marketing', keywords: 'social media, trends, marketing', status: 'pending' },
+      { title: 'Copywriting Secrets', topic: 'Professional copywriting techniques that drive sales', keywords: 'copywriting, sales, persuasion', status: 'completed' },
+      { title: 'Video Marketing 101', topic: 'Beginners guide to video content marketing', keywords: 'video marketing, YouTube, content', status: 'completed' },
+      { title: 'Podcast Launch Guide', topic: 'Everything you need to launch a successful podcast', keywords: 'podcast, launch, audience', status: 'pending' },
+      { title: 'AI Tools Comparison', topic: 'Comparing the top 10 AI content creation tools', keywords: 'AI tools, comparison, review', status: 'completed' },
+      { title: 'Remote Team Productivity', topic: 'Tips for maintaining productivity in remote content teams', keywords: 'remote work, productivity, teams', status: 'completed' },
+      { title: 'Brand Voice Guide', topic: 'How to develop and maintain a consistent brand voice', keywords: 'brand voice, consistency, messaging', status: 'pending' },
+      { title: 'Analytics for Content', topic: 'Understanding analytics to improve content performance', keywords: 'analytics, metrics, performance', status: 'completed' },
+      { title: 'Guest Posting Strategy', topic: 'How to use guest posts for authority and traffic', keywords: 'guest posting, backlinks, authority', status: 'completed' },
+      { title: 'Content Repurposing', topic: 'Maximize content value by repurposing across platforms', keywords: 'repurposing, content, efficiency', status: 'pending' }
+    ];
+    for (const item of blogItems) {
+      await prisma.blogPost.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Blog Posts seeded (15 items)');
   }
-  console.log('✅ Scripts seeded (15 items)');
 
-  // Seed Podcasts (15+ items)
-  const podcasts = [
-    { title: 'Tech Trends Weekly', topic: 'Weekly technology news roundup', description: 'Your weekly dose of tech news', script: 'Welcome to Tech Trends Weekly...', audioUrl: 'https://example.com/podcasts/1.mp3', duration: 1800, status: 'completed' },
-    { title: 'Startup Stories', topic: 'Founder interviews', description: 'Inspiring stories from founders', script: 'Today we sit down with...', audioUrl: 'https://example.com/podcasts/2.mp3', duration: 2700, status: 'completed' },
-    { title: 'Marketing Masterclass', topic: 'Digital marketing tips', description: 'Learn marketing from experts', script: 'In this episode, we dive into...', audioUrl: 'https://example.com/podcasts/3.mp3', duration: 2400, status: 'completed' },
-    { title: 'Leadership Lessons', topic: 'Management and leadership', description: 'Become a better leader', script: 'Leadership is not about titles...', audioUrl: 'https://example.com/podcasts/4.mp3', duration: 2100, status: 'completed' },
-    { title: 'AI Explained', topic: 'Artificial intelligence basics', description: 'Making AI accessible', script: 'Artificial intelligence might sound scary...', audioUrl: 'https://example.com/podcasts/5.mp3', duration: 1500, status: 'completed' },
-    { title: 'Career Growth', topic: 'Professional development', description: 'Advance your career', script: 'The most successful professionals...', audioUrl: 'https://example.com/podcasts/6.mp3', duration: 1800, status: 'completed' },
-    { title: 'Industry Insights', topic: 'SaaS industry analysis', description: 'Deep dives into SaaS', script: 'The SaaS landscape is evolving...', audioUrl: 'https://example.com/podcasts/7.mp3', duration: 2400, status: 'completed' },
-    { title: 'Product Management', topic: 'PM best practices', description: 'Tips for product managers', script: 'Building great products requires...', audioUrl: 'https://example.com/podcasts/8.mp3', duration: 2100, status: 'completed' },
-    { title: 'Remote Work Life', topic: 'Working from anywhere', description: 'Thriving while remote', script: 'Remote work is here to stay...', audioUrl: 'https://example.com/podcasts/9.mp3', duration: 1800, status: 'completed' },
-    { title: 'Funding Insights', topic: 'Venture capital trends', description: 'Understanding VC', script: 'Raising capital is a journey...', audioUrl: 'https://example.com/podcasts/10.mp3', duration: 2700, status: 'pending' },
-    { title: 'Design Thinking', topic: 'UX and design philosophy', description: 'Design that delights', script: 'Good design is invisible...', audioUrl: 'https://example.com/podcasts/11.mp3', duration: 2100, status: 'completed' },
-    { title: 'Sales Secrets', topic: 'B2B sales strategies', description: 'Close more deals', script: 'Every sale is a relationship...', audioUrl: 'https://example.com/podcasts/12.mp3', duration: 2400, status: 'completed' },
-    { title: 'Content Creation', topic: 'Building an audience', description: 'Grow your following', script: 'Content is the new currency...', audioUrl: 'https://example.com/podcasts/13.mp3', duration: 1500, status: 'completed' },
-    { title: 'Crypto Corner', topic: 'Cryptocurrency updates', description: 'Crypto market analysis', script: 'The crypto market never sleeps...', audioUrl: 'https://example.com/podcasts/14.mp3', duration: 1800, status: 'completed' },
-    { title: 'Health Tech', topic: 'Healthcare innovation', description: 'Technology in medicine', script: 'Healthcare is being revolutionized...', audioUrl: 'https://example.com/podcasts/15.mp3', duration: 2400, status: 'completed' }
-  ];
-
-  for (const podcast of podcasts) {
-    await prisma.podcast.create({ data: { ...podcast, userId: user.id } });
+  // --- MarketingCopy ---
+  const existingMarketingCount = await prisma.marketingCopy.count();
+  if (existingMarketingCount === 0) {
+    const marketingItems = [
+      { title: 'Homepage Hero Copy', product: 'AI Content Studio', targetAud: 'Content marketers', status: 'completed' },
+      { title: 'Google Ads Copy', product: 'AI Writing Assistant', targetAud: 'Small business owners', status: 'completed' },
+      { title: 'Facebook Ad Campaign', product: 'Content Calendar Tool', targetAud: 'Social media managers', status: 'pending' },
+      { title: 'Product Hunt Launch', product: 'AI Content Studio v2.0', targetAud: 'Early adopters and developers', status: 'completed' },
+      { title: 'Sales Page Copy', product: 'Enterprise AI Suite', targetAud: 'Enterprise marketing teams', status: 'completed' },
+      { title: 'LinkedIn Ad Copy', product: 'B2B Content Generator', targetAud: 'Marketing directors', status: 'pending' },
+      { title: 'App Store Description', product: 'AI Content Mobile App', targetAud: 'Mobile content creators', status: 'completed' },
+      { title: 'Pricing Page Copy', product: 'All Plans', targetAud: 'Potential customers', status: 'completed' },
+      { title: 'Retargeting Ad', product: 'Premium Plan', targetAud: 'Trial users who did not convert', status: 'pending' },
+      { title: 'Partnership Pitch', product: 'API Integration', targetAud: 'Technology partners', status: 'completed' },
+      { title: 'Trade Show Banner', product: 'Full Platform', targetAud: 'Conference attendees', status: 'completed' },
+      { title: 'Affiliate Program', product: 'Referral System', targetAud: 'Bloggers and influencers', status: 'pending' },
+      { title: 'Comparison Landing', product: 'AI Content Studio vs Competitors', targetAud: 'Decision makers', status: 'completed' },
+      { title: 'Testimonial Request', product: 'Customer Review', targetAud: 'Active enterprise users', status: 'completed' },
+      { title: 'Holiday Campaign', product: 'Annual Plan Discount', targetAud: 'All segments', status: 'pending' }
+    ];
+    for (const item of marketingItems) {
+      await prisma.marketingCopy.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Marketing Copy seeded (15 items)');
   }
-  console.log('✅ Podcasts seeded (15 items)');
 
-  // Seed Voiceovers (15+ items)
-  const voiceovers = [
-    { title: 'App Welcome', text: 'Welcome to our app. Let us show you around.', voice: 'friendly', language: 'en', audioUrl: 'https://example.com/voiceovers/1.mp3', duration: 15, status: 'completed' },
-    { title: 'IVR Menu', text: 'Press 1 for sales, press 2 for support.', voice: 'professional', language: 'en', audioUrl: 'https://example.com/voiceovers/2.mp3', duration: 20, status: 'completed' },
-    { title: 'Video Narration', text: 'In a world where technology moves fast...', voice: 'dramatic', language: 'en', audioUrl: 'https://example.com/voiceovers/3.mp3', duration: 60, status: 'completed' },
-    { title: 'E-learning Module', text: 'In this lesson, you will learn about...', voice: 'educational', language: 'en', audioUrl: 'https://example.com/voiceovers/4.mp3', duration: 180, status: 'completed' },
-    { title: 'Commercial VO', text: 'Introducing the all-new product that will change...', voice: 'energetic', language: 'en', audioUrl: 'https://example.com/voiceovers/5.mp3', duration: 30, status: 'completed' },
-    { title: 'Meditation Guide', text: 'Take a deep breath. Let your thoughts...', voice: 'calm', language: 'en', audioUrl: 'https://example.com/voiceovers/6.mp3', duration: 300, status: 'completed' },
-    { title: 'Podcast Intro', text: 'Welcome to another episode of...', voice: 'warm', language: 'en', audioUrl: 'https://example.com/voiceovers/7.mp3', duration: 20, status: 'completed' },
-    { title: 'Documentary', text: 'The story of human innovation begins...', voice: 'authoritative', language: 'en', audioUrl: 'https://example.com/voiceovers/8.mp3', duration: 120, status: 'completed' },
-    { title: 'Game Character', text: 'Brave adventurer, your quest begins now.', voice: 'fantasy', language: 'en', audioUrl: 'https://example.com/voiceovers/9.mp3', duration: 45, status: 'completed' },
-    { title: 'Radio Spot', text: 'This weekend only at your local dealer...', voice: 'announcer', language: 'en', audioUrl: 'https://example.com/voiceovers/10.mp3', duration: 30, status: 'pending' },
-    { title: 'Audiobook Sample', text: 'Chapter one. The morning sun rose over...', voice: 'narrative', language: 'en', audioUrl: 'https://example.com/voiceovers/11.mp3', duration: 90, status: 'completed' },
-    { title: 'Safety Instructions', text: 'In case of emergency, please proceed...', voice: 'clear', language: 'en', audioUrl: 'https://example.com/voiceovers/12.mp3', duration: 45, status: 'completed' },
-    { title: 'Product Tour', text: 'Let me walk you through our key features...', voice: 'friendly', language: 'en', audioUrl: 'https://example.com/voiceovers/13.mp3', duration: 120, status: 'completed' },
-    { title: 'Spanish Welcome', text: 'Bienvenido a nuestra aplicación.', voice: 'professional', language: 'es', audioUrl: 'https://example.com/voiceovers/14.mp3', duration: 15, status: 'completed' },
-    { title: 'French Tutorial', text: 'Bienvenue dans ce tutoriel.', voice: 'educational', language: 'fr', audioUrl: 'https://example.com/voiceovers/15.mp3', duration: 20, status: 'completed' }
-  ];
-
-  for (const voiceover of voiceovers) {
-    await prisma.voiceover.create({ data: { ...voiceover, userId: user.id } });
+  // --- Script ---
+  const existingScriptCount = await prisma.script.count();
+  if (existingScriptCount === 0) {
+    const scriptItems = [
+      { title: 'Product Demo Script', type: 'video', topic: 'Walk through the key features of our AI platform', duration: 5, status: 'completed' },
+      { title: 'Podcast Interview Questions', type: 'podcast', topic: 'Interview questions for a marketing expert guest', duration: 30, status: 'completed' },
+      { title: 'Sales Presentation', type: 'presentation', topic: 'Enterprise sales pitch with ROI calculator', duration: 15, status: 'pending' },
+      { title: 'YouTube Tutorial', type: 'video', topic: 'How to use AI to create blog posts in 5 minutes', duration: 10, status: 'completed' },
+      { title: 'Webinar Script', type: 'presentation', topic: 'Content marketing masterclass for beginners', duration: 60, status: 'completed' },
+      { title: 'TikTok Series', type: 'video', topic: 'Quick AI tips series - 5 episodes of 60 seconds each', duration: 1, status: 'pending' },
+      { title: 'Radio Advertisement', type: 'audio', topic: '30-second radio spot for brand awareness', duration: 1, status: 'completed' },
+      { title: 'Investor Pitch', type: 'presentation', topic: 'Series A pitch deck presentation script', duration: 20, status: 'completed' },
+      { title: 'Training Video', type: 'video', topic: 'Employee onboarding training for the content team', duration: 25, status: 'pending' },
+      { title: 'Customer Story', type: 'video', topic: 'Documentary-style customer success video', duration: 8, status: 'completed' },
+      { title: 'Podcast Monologue', type: 'podcast', topic: 'Solo episode about the state of AI in marketing', duration: 20, status: 'completed' },
+      { title: 'Explainer Video', type: 'video', topic: 'How our AI content engine works under the hood', duration: 3, status: 'pending' },
+      { title: 'Conference Talk', type: 'presentation', topic: 'Keynote on democratizing content creation with AI', duration: 45, status: 'completed' },
+      { title: 'Brand Video', type: 'video', topic: 'Emotional brand story about empowering creators', duration: 2, status: 'completed' },
+      { title: 'Podcast Outro', type: 'podcast', topic: 'Weekly podcast outro with call-to-action', duration: 1, status: 'pending' }
+    ];
+    for (const item of scriptItems) {
+      await prisma.script.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Scripts seeded (15 items)');
   }
-  console.log('✅ Voiceovers seeded (15 items)');
 
-  // Seed Music Tracks (15+ items)
-  const musicTracks = [
-    { title: 'Corporate Inspiration', genre: 'corporate', mood: 'uplifting', prompt: 'Motivational corporate background music', audioUrl: 'https://example.com/music/1.mp3', duration: 180, status: 'completed' },
-    { title: 'Chill Lo-Fi Beat', genre: 'lo-fi', mood: 'relaxed', prompt: 'Laid-back lo-fi hip hop for studying', audioUrl: 'https://example.com/music/2.mp3', duration: 240, status: 'completed' },
-    { title: 'Epic Cinematic', genre: 'cinematic', mood: 'dramatic', prompt: 'Epic orchestral trailer music', audioUrl: 'https://example.com/music/3.mp3', duration: 120, status: 'completed' },
-    { title: 'Upbeat Pop', genre: 'pop', mood: 'happy', prompt: 'Cheerful pop background for commercials', audioUrl: 'https://example.com/music/4.mp3', duration: 180, status: 'completed' },
-    { title: 'Ambient Nature', genre: 'ambient', mood: 'peaceful', prompt: 'Calming ambient soundscape with nature', audioUrl: 'https://example.com/music/5.mp3', duration: 300, status: 'completed' },
-    { title: 'Tech Innovation', genre: 'electronic', mood: 'futuristic', prompt: 'Modern electronic music for tech videos', audioUrl: 'https://example.com/music/6.mp3', duration: 150, status: 'completed' },
-    { title: 'Acoustic Folk', genre: 'folk', mood: 'warm', prompt: 'Warm acoustic guitar folk melody', audioUrl: 'https://example.com/music/7.mp3', duration: 210, status: 'completed' },
-    { title: 'Jazz Lounge', genre: 'jazz', mood: 'sophisticated', prompt: 'Smooth jazz for restaurant ambiance', audioUrl: 'https://example.com/music/8.mp3', duration: 240, status: 'completed' },
-    { title: 'Action Sports', genre: 'rock', mood: 'energetic', prompt: 'High-energy rock for sports highlights', audioUrl: 'https://example.com/music/9.mp3', duration: 120, status: 'completed' },
-    { title: 'Meditation Drone', genre: 'ambient', mood: 'meditative', prompt: 'Deep meditation drone music', audioUrl: 'https://example.com/music/10.mp3', duration: 600, status: 'pending' },
-    { title: 'Holiday Jingle', genre: 'holiday', mood: 'festive', prompt: 'Cheerful Christmas jingle', audioUrl: 'https://example.com/music/11.mp3', duration: 90, status: 'completed' },
-    { title: 'Retro Synthwave', genre: 'synthwave', mood: 'nostalgic', prompt: '80s inspired synthwave track', audioUrl: 'https://example.com/music/12.mp3', duration: 210, status: 'completed' },
-    { title: 'World Music Fusion', genre: 'world', mood: 'exotic', prompt: 'World music with diverse instruments', audioUrl: 'https://example.com/music/13.mp3', duration: 240, status: 'completed' },
-    { title: 'Piano Emotional', genre: 'classical', mood: 'emotional', prompt: 'Emotional piano piece for storytelling', audioUrl: 'https://example.com/music/14.mp3', duration: 180, status: 'completed' },
-    { title: 'Hip Hop Beat', genre: 'hip-hop', mood: 'confident', prompt: 'Modern hip hop instrumental beat', audioUrl: 'https://example.com/music/15.mp3', duration: 180, status: 'completed' }
-  ];
-
-  for (const track of musicTracks) {
-    await prisma.musicTrack.create({ data: { ...track, userId: user.id } });
+  // --- Podcast ---
+  const existingPodcastCount = await prisma.podcast.count();
+  if (existingPodcastCount === 0) {
+    const podcastItems = [
+      { title: 'AI in Marketing - Episode 1', topic: 'Introduction to AI-powered marketing tools', description: 'Premiere episode exploring how AI is changing marketing', status: 'completed' },
+      { title: 'Content Creation Secrets', topic: 'Professional content creators share their secrets', description: 'Interview with top content creators about their workflows', status: 'completed' },
+      { title: 'Startup Growth Stories', topic: 'How startups scale their content marketing', description: 'Case studies from successful startups', status: 'pending' },
+      { title: 'SEO Deep Dive', topic: 'Advanced SEO strategies for content marketers', description: 'Technical SEO tips that actually move the needle', status: 'completed' },
+      { title: 'Social Media Mastery', topic: 'Building a brand on social media platforms', description: 'Strategies for growing your social presence organically', status: 'completed' },
+      { title: 'Email Marketing Trends', topic: 'What works in email marketing right now', description: 'Current trends and future predictions for email', status: 'pending' },
+      { title: 'Video Content Strategy', topic: 'Creating a video content strategy from scratch', description: 'How to plan and execute video marketing effectively', status: 'completed' },
+      { title: 'The Creator Economy', topic: 'How individual creators are building businesses', description: 'Exploring the rise of the creator economy', status: 'completed' },
+      { title: 'B2B Content Playbook', topic: 'Content marketing strategies for B2B companies', description: 'What works differently in B2B content', status: 'pending' },
+      { title: 'Analytics & Metrics', topic: 'Understanding content marketing analytics', description: 'Which metrics matter and how to track them', status: 'completed' },
+      { title: 'Writing Better Headlines', topic: 'The science behind headlines that get clicks', description: 'Data-driven approach to writing compelling headlines', status: 'completed' },
+      { title: 'Remote Work & Content', topic: 'Managing content teams remotely', description: 'Tools and strategies for distributed content teams', status: 'pending' },
+      { title: 'AI Ethics in Content', topic: 'Ethical considerations when using AI for content', description: 'Navigating the ethical landscape of AI-generated content', status: 'completed' },
+      { title: 'Monetizing Content', topic: 'How to turn content into revenue', description: 'Revenue models and monetization strategies for creators', status: 'completed' },
+      { title: 'Future of Blogging', topic: 'Is blogging still relevant in 2024?', description: 'Examining the evolving role of blogs in content strategy', status: 'pending' }
+    ];
+    for (const item of podcastItems) {
+      await prisma.podcast.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Podcasts seeded (15 items)');
   }
-  console.log('✅ Music tracks seeded (15 items)');
+
+  // --- Voiceover ---
+  const existingVoiceoverCount = await prisma.voiceover.count();
+  if (existingVoiceoverCount === 0) {
+    const voiceoverItems = [
+      { title: 'Product Demo Narration', text: 'Welcome to AI Content Studio, the all-in-one platform for creating professional content with AI.', voice: 'professional', language: 'en', status: 'completed' },
+      { title: 'Explainer Video VO', text: 'In just three simple steps, you can transform your ideas into polished, publish-ready content.', voice: 'friendly', language: 'en', status: 'completed' },
+      { title: 'Meditation Guide', text: 'Close your eyes and take a deep breath. Feel the tension leaving your body as you relax.', voice: 'calm', language: 'en', status: 'pending' },
+      { title: 'Commercial Narration', text: 'Introducing the future of content creation. Faster. Smarter. More creative than ever before.', voice: 'dramatic', language: 'en', status: 'completed' },
+      { title: 'Training Video VO', text: 'In this module, you will learn how to set up your first project and generate content using AI.', voice: 'professional', language: 'en', status: 'completed' },
+      { title: 'Spanish Welcome', text: 'Bienvenido a nuestra plataforma. Estamos encantados de tenerte aquí.', voice: 'friendly', language: 'es', status: 'pending' },
+      { title: 'App Tour Guide', text: 'Let me show you around. This is your dashboard where you can manage all your content projects.', voice: 'friendly', language: 'en', status: 'completed' },
+      { title: 'Podcast Intro', text: 'You are listening to Content Mastery, the podcast where we explore the art and science of content creation.', voice: 'professional', language: 'en', status: 'completed' },
+      { title: 'French Documentary', text: 'L\'intelligence artificielle transforme notre façon de créer du contenu.', voice: 'professional', language: 'fr', status: 'pending' },
+      { title: 'IVR Phone Menu', text: 'Thank you for calling AI Content Studio. Press 1 for sales, 2 for support, or 3 for billing.', voice: 'neutral', language: 'en', status: 'completed' },
+      { title: 'Motivational VO', text: 'Every great piece of content starts with a single idea. Let AI help you bring that idea to life.', voice: 'dramatic', language: 'en', status: 'completed' },
+      { title: 'German Tutorial', text: 'Willkommen zu unserem Tutorial. Heute lernen Sie, wie Sie KI für die Inhaltserstellung nutzen.', voice: 'professional', language: 'de', status: 'pending' },
+      { title: 'Audiobook Opening', text: 'Chapter One: The Rise of AI. It was a time of unprecedented change in the world of technology.', voice: 'neutral', language: 'en', status: 'completed' },
+      { title: 'Event Announcement', text: 'Join us for the biggest content marketing event of the year. Register now for early bird pricing.', voice: 'friendly', language: 'en', status: 'completed' },
+      { title: 'Brand Manifesto', text: 'We believe that everyone deserves access to professional-quality content. That is why we built AI Content Studio.', voice: 'dramatic', language: 'en', status: 'pending' }
+    ];
+    for (const item of voiceoverItems) {
+      await prisma.voiceover.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Voiceovers seeded (15 items)');
+  }
+
+  // --- MusicTrack ---
+  const existingMusicCount = await prisma.musicTrack.count();
+  if (existingMusicCount === 0) {
+    const musicItems = [
+      { title: 'Corporate Background', genre: 'corporate', mood: 'uplifting', prompt: 'Upbeat corporate background music for presentations', status: 'completed' },
+      { title: 'Ambient Chill', genre: 'ambient', mood: 'calm', prompt: 'Relaxing ambient track for meditation and focus', status: 'completed' },
+      { title: 'Cinematic Trailer', genre: 'cinematic', mood: 'dramatic', prompt: 'Epic cinematic music for movie trailer or promo video', status: 'pending' },
+      { title: 'Pop Jingle', genre: 'pop', mood: 'happy', prompt: 'Catchy pop jingle for a brand commercial', status: 'completed' },
+      { title: 'Electronic Beat', genre: 'electronic', mood: 'energetic', prompt: 'High-energy electronic beat for workout content', status: 'completed' },
+      { title: 'Jazz Background', genre: 'jazz', mood: 'calm', prompt: 'Smooth jazz for restaurant or lounge ambiance', status: 'pending' },
+      { title: 'Rock Intro', genre: 'rock', mood: 'energetic', prompt: 'Powerful rock intro for a gaming channel', status: 'completed' },
+      { title: 'Classical Piano', genre: 'classical', mood: 'peaceful', prompt: 'Gentle classical piano piece for emotional content', status: 'completed' },
+      { title: 'Lo-Fi Study', genre: 'electronic', mood: 'calm', prompt: 'Lo-fi hip hop beats for studying and working', status: 'pending' },
+      { title: 'Podcast Bed', genre: 'ambient', mood: 'calm', prompt: 'Subtle background music for podcast conversations', status: 'completed' },
+      { title: 'Celebration Track', genre: 'pop', mood: 'happy', prompt: 'Festive celebration music for milestone announcements', status: 'completed' },
+      { title: 'Suspense Theme', genre: 'cinematic', mood: 'dramatic', prompt: 'Tense suspense music for mystery or thriller content', status: 'pending' },
+      { title: 'Acoustic Folk', genre: 'rock', mood: 'peaceful', prompt: 'Warm acoustic folk guitar for storytelling content', status: 'completed' },
+      { title: 'Tech Innovation', genre: 'electronic', mood: 'uplifting', prompt: 'Futuristic electronic music for tech product videos', status: 'completed' },
+      { title: 'Outro Music', genre: 'corporate', mood: 'calm', prompt: 'Gentle fade-out outro music for video endings', status: 'pending' }
+    ];
+    for (const item of musicItems) {
+      await prisma.musicTrack.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Music Tracks seeded (15 items)');
+  }
+
+  // =============================================
+  // NEW AI CONTENT STUDIO FEATURES (8 models)
+  // =============================================
+
+  // Check if new features already seeded
+  const existingCalendarItems = await prisma.contentCalendar.count();
+  if (existingCalendarItems === 0) {
+    // Seed Content Calendar (15 items)
+    const calendarItems = [
+      { title: 'Q1 Product Launch Blog', contentType: 'blog', scheduledDate: new Date('2024-03-15'), platform: 'website', topic: 'New product features and benefits', status: 'scheduled' },
+      { title: 'Weekly Newsletter #12', contentType: 'email', scheduledDate: new Date('2024-03-18'), platform: 'email', topic: 'Industry trends and company updates', status: 'draft' },
+      { title: 'Instagram Product Teaser', contentType: 'social', scheduledDate: new Date('2024-03-20'), platform: 'instagram', topic: 'Behind the scenes product development', status: 'pending' },
+      { title: 'LinkedIn Thought Leadership', contentType: 'social', scheduledDate: new Date('2024-03-22'), platform: 'linkedin', topic: 'Future of AI in marketing', status: 'scheduled' },
+      { title: 'YouTube Tutorial Video', contentType: 'video', scheduledDate: new Date('2024-03-25'), platform: 'youtube', topic: 'How to use our new features', status: 'pending' },
+      { title: 'Twitter Thread - Tips', contentType: 'social', scheduledDate: new Date('2024-03-26'), platform: 'twitter', topic: '10 productivity tips for remote workers', status: 'draft' },
+      { title: 'Case Study Publication', contentType: 'blog', scheduledDate: new Date('2024-03-28'), platform: 'website', topic: 'Customer success story with ROI metrics', status: 'scheduled' },
+      { title: 'Podcast Episode Recording', contentType: 'podcast', scheduledDate: new Date('2024-04-01'), platform: 'spotify', topic: 'Interview with industry expert', status: 'pending' },
+      { title: 'TikTok Behind the Scenes', contentType: 'social', scheduledDate: new Date('2024-04-03'), platform: 'tiktok', topic: 'Day in the life at our startup', status: 'draft' },
+      { title: 'Email Drip Campaign Start', contentType: 'email', scheduledDate: new Date('2024-04-05'), platform: 'email', topic: 'Onboarding sequence for new users', status: 'scheduled' },
+      { title: 'Webinar Announcement', contentType: 'email', scheduledDate: new Date('2024-04-08'), platform: 'email', topic: 'Upcoming webinar on best practices', status: 'pending' },
+      { title: 'Facebook Community Post', contentType: 'social', scheduledDate: new Date('2024-04-10'), platform: 'facebook', topic: 'User poll and engagement post', status: 'draft' },
+      { title: 'SEO Blog Article', contentType: 'blog', scheduledDate: new Date('2024-04-12'), platform: 'website', topic: 'Complete guide to content marketing', status: 'scheduled' },
+      { title: 'Press Release Draft', contentType: 'press', scheduledDate: new Date('2024-04-15'), platform: 'media', topic: 'Partnership announcement', status: 'pending' },
+      { title: 'Instagram Carousel', contentType: 'social', scheduledDate: new Date('2024-04-17'), platform: 'instagram', topic: '5 ways to improve your workflow', status: 'draft' }
+    ];
+    for (const item of calendarItems) {
+      await prisma.contentCalendar.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Content Calendar seeded (15 items)');
+  }
+
+  const existingRepurposed = await prisma.repurposedContent.count();
+  if (existingRepurposed === 0) {
+    const repurposedItems = [
+      { title: 'Blog to Twitter Thread', originalContent: 'Our comprehensive guide to content marketing covers everything from strategy to execution...', originalType: 'blog', targetType: 'thread', targetPlatform: 'twitter', status: 'completed', repurposedContent: 'Thread: Content Marketing 101\n\n1/ Strategy is everything...' },
+      { title: 'Podcast to Blog Summary', originalContent: 'In this episode, we discussed the future of AI with John Smith...', originalType: 'podcast', targetType: 'blog', targetPlatform: 'website', status: 'completed' },
+      { title: 'Video Script to LinkedIn', originalContent: 'Welcome to our tutorial on productivity hacks...', originalType: 'video', targetType: 'post', targetPlatform: 'linkedin', status: 'pending' },
+      { title: 'Case Study to Infographic', originalContent: 'Company X increased their revenue by 150% using our platform...', originalType: 'blog', targetType: 'infographic', targetPlatform: 'general', status: 'completed' },
+      { title: 'Webinar to Email Series', originalContent: 'Thank you for joining our webinar on digital transformation...', originalType: 'video', targetType: 'email', targetPlatform: 'email', status: 'pending' },
+      { title: 'Blog to Instagram Carousel', originalContent: '10 Tips for Better Remote Work: 1. Set up a dedicated workspace...', originalType: 'blog', targetType: 'carousel', targetPlatform: 'instagram', status: 'completed' },
+      { title: 'Newsletter to Social Posts', originalContent: 'This week we launched our new feature, hosted a webinar...', originalType: 'email', targetType: 'social', targetPlatform: 'multiple', status: 'pending' },
+      { title: 'Research Report to Blog', originalContent: 'Our analysis of 10,000 marketing campaigns revealed...', originalType: 'report', targetType: 'blog', targetPlatform: 'website', status: 'completed' },
+      { title: 'Interview to Quote Graphics', originalContent: 'The most important thing in business is authenticity...', originalType: 'podcast', targetType: 'graphics', targetPlatform: 'instagram', status: 'pending' },
+      { title: 'Tutorial to Quick Tips', originalContent: 'In this 30-minute tutorial, we cover advanced features...', originalType: 'video', targetType: 'tips', targetPlatform: 'tiktok', status: 'completed' },
+      { title: 'White Paper to Blog Series', originalContent: 'The State of AI in 2024: A comprehensive analysis...', originalType: 'whitepaper', targetType: 'blog', targetPlatform: 'website', status: 'pending' },
+      { title: 'Customer Story to Video', originalContent: 'Jane from Company Y shares her experience...', originalType: 'blog', targetType: 'video', targetPlatform: 'youtube', status: 'completed' },
+      { title: 'FAQ to Social Content', originalContent: 'Q: How do I get started? A: Simply sign up...', originalType: 'faq', targetType: 'social', targetPlatform: 'multiple', status: 'pending' },
+      { title: 'Press Release to Social', originalContent: 'FOR IMMEDIATE RELEASE: Company announces...', originalType: 'press', targetType: 'social', targetPlatform: 'linkedin', status: 'completed' },
+      { title: 'Slide Deck to Blog', originalContent: 'Slide 1: Introduction to Growth Hacking...', originalType: 'presentation', targetType: 'blog', targetPlatform: 'website', status: 'pending' }
+    ];
+    for (const item of repurposedItems) {
+      await prisma.repurposedContent.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Repurposed Content seeded (15 items)');
+  }
+
+  const existingPlagiarism = await prisma.plagiarismCheck.count();
+  if (existingPlagiarism === 0) {
+    const plagiarismItems = [
+      { title: 'Blog Post Draft Check', content: 'Artificial intelligence is transforming how businesses operate. From automation to insights, AI provides unprecedented opportunities for growth and efficiency.', originalityScore: 92, plagiarismScore: 8, status: 'completed' },
+      { title: 'Product Description Review', content: 'Our revolutionary software helps teams collaborate seamlessly. With real-time updates and intuitive design, productivity soars.', originalityScore: 88, plagiarismScore: 12, status: 'completed' },
+      { title: 'Marketing Copy Analysis', content: 'Transform your workflow today. Join thousands of satisfied customers who have already made the switch.', originalityScore: 75, plagiarismScore: 25, status: 'completed' },
+      { title: 'Academic Paper Intro', content: 'The study of machine learning has evolved significantly over the past decade, with neural networks becoming increasingly sophisticated.', originalityScore: 95, plagiarismScore: 5, status: 'completed' },
+      { title: 'Website Homepage Copy', content: 'Welcome to the future of productivity. We help teams work smarter, not harder.', originalityScore: 70, plagiarismScore: 30, status: 'completed' },
+      { title: 'Social Media Caption', content: 'Monday motivation: Success is not final, failure is not fatal. Keep pushing forward!', originalityScore: 45, plagiarismScore: 55, status: 'completed' },
+      { title: 'Email Newsletter Content', content: 'This week in tech: AI advances, cybersecurity updates, and the latest in cloud computing.', originalityScore: 82, plagiarismScore: 18, status: 'completed' },
+      { title: 'Press Release Draft', content: 'Company X announces groundbreaking partnership to expand global reach and enhance service offerings.', originalityScore: 90, plagiarismScore: 10, status: 'pending' },
+      { title: 'Case Study Writing', content: 'Client achieved 200% ROI within six months of implementation. Here is how they did it.', originalityScore: 87, plagiarismScore: 13, status: 'completed' },
+      { title: 'Video Script Check', content: 'Hey everyone, welcome back to our channel. Today we are going to explore the top 10 productivity apps.', originalityScore: 78, plagiarismScore: 22, status: 'completed' },
+      { title: 'LinkedIn Article', content: 'Leadership in the digital age requires adaptability, empathy, and a commitment to continuous learning.', originalityScore: 85, plagiarismScore: 15, status: 'pending' },
+      { title: 'Technical Documentation', content: 'The API endpoint accepts POST requests with JSON payload containing user credentials.', originalityScore: 65, plagiarismScore: 35, status: 'completed' },
+      { title: 'Ebook Chapter Draft', content: 'Chapter 3: Building Your Personal Brand. In today competitive market, standing out is essential.', originalityScore: 91, plagiarismScore: 9, status: 'completed' },
+      { title: 'Grant Proposal Intro', content: 'This proposal outlines our innovative approach to solving urban transportation challenges.', originalityScore: 94, plagiarismScore: 6, status: 'pending' },
+      { title: 'Guest Blog Submission', content: 'Five strategies for sustainable business growth in uncertain economic times.', originalityScore: 80, plagiarismScore: 20, status: 'completed' }
+    ];
+    for (const item of plagiarismItems) {
+      await prisma.plagiarismCheck.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Plagiarism Checks seeded (15 items)');
+  }
+
+  const existingImageSuggestions = await prisma.imageSuggestion.count();
+  if (existingImageSuggestions === 0) {
+    const imageSuggestionItems = [
+      { title: 'Tech Blog Hero Image', content: 'Our latest blog post about AI trends in 2024 discusses machine learning, automation, and the future of work.', contentType: 'blog', status: 'completed' },
+      { title: 'Social Media Campaign', content: 'Summer sale announcement: Get 30% off all products this weekend only!', contentType: 'social', status: 'completed' },
+      { title: 'Email Newsletter Header', content: 'Weekly digest covering industry news, product updates, and upcoming events.', contentType: 'email', status: 'pending' },
+      { title: 'Landing Page Visuals', content: 'Convert more visitors with our proven marketing automation platform.', contentType: 'landing', status: 'completed' },
+      { title: 'Product Launch Post', content: 'Introducing our newest feature: AI-powered content suggestions that save you hours.', contentType: 'social', status: 'completed' },
+      { title: 'Case Study Graphics', content: 'How Company X increased conversion rates by 150% in just 3 months.', contentType: 'blog', status: 'pending' },
+      { title: 'Tutorial Thumbnails', content: 'Step-by-step guide to setting up your first marketing campaign.', contentType: 'video', status: 'completed' },
+      { title: 'Infographic Content', content: 'The complete guide to content marketing: strategy, creation, distribution, and measurement.', contentType: 'infographic', status: 'completed' },
+      { title: 'Event Promotion', content: 'Join us for our annual conference featuring industry leaders and networking opportunities.', contentType: 'social', status: 'pending' },
+      { title: 'Team Introduction', content: 'Meet the people behind our success: passionate experts dedicated to your growth.', contentType: 'blog', status: 'completed' },
+      { title: 'Feature Highlight', content: 'Our analytics dashboard provides real-time insights into your marketing performance.', contentType: 'social', status: 'completed' },
+      { title: 'Holiday Campaign', content: 'Celebrate the season with exclusive deals and heartfelt gratitude to our customers.', contentType: 'email', status: 'pending' },
+      { title: 'Testimonial Post', content: 'Our customers love us: Real stories from real users about their success.', contentType: 'social', status: 'completed' },
+      { title: 'How-To Guide Images', content: 'Learn how to create engaging social media content that drives results.', contentType: 'blog', status: 'completed' },
+      { title: 'Podcast Cover Art', content: 'Weekly discussions on marketing, technology, and business growth strategies.', contentType: 'podcast', status: 'pending' }
+    ];
+    for (const item of imageSuggestionItems) {
+      await prisma.imageSuggestion.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Image Suggestions seeded (15 items)');
+  }
+
+  const existingPerformance = await prisma.performancePrediction.count();
+  if (existingPerformance === 0) {
+    const performanceItems = [
+      { title: 'Product Launch Tweet', content: 'Exciting news! Our new AI feature is here. Transform your workflow today. #AI #ProductLaunch', contentType: 'social', platform: 'twitter', predictedScore: 78, viralityScore: 65, status: 'completed' },
+      { title: 'LinkedIn Article', content: 'The future of remote work: 5 trends that will shape how we collaborate in 2024 and beyond.', contentType: 'blog', platform: 'linkedin', predictedScore: 85, viralityScore: 45, status: 'completed' },
+      { title: 'Instagram Reel Concept', content: 'Quick tips for productivity: The 5-minute morning routine that changed everything.', contentType: 'video', platform: 'instagram', predictedScore: 72, viralityScore: 80, status: 'completed' },
+      { title: 'Email Subject Line Test', content: 'You wont believe what we just launched...', contentType: 'email', platform: 'email', predictedScore: 65, viralityScore: 30, status: 'completed' },
+      { title: 'Blog Post SEO Check', content: 'Complete guide to content marketing: Strategy, creation, and measurement for 2024.', contentType: 'blog', platform: 'website', predictedScore: 88, viralityScore: 35, status: 'pending' },
+      { title: 'YouTube Video Title', content: 'I tried AI tools for 30 days - Here is what happened to my productivity.', contentType: 'video', platform: 'youtube', predictedScore: 82, viralityScore: 75, status: 'completed' },
+      { title: 'Facebook Ad Copy', content: 'Tired of manual tasks? Automate your workflow and save 10 hours every week.', contentType: 'ad', platform: 'facebook', predictedScore: 70, viralityScore: 40, status: 'completed' },
+      { title: 'TikTok Hook Analysis', content: 'Stop scrolling - this productivity hack will change your life in 30 seconds.', contentType: 'video', platform: 'tiktok', predictedScore: 75, viralityScore: 85, status: 'completed' },
+      { title: 'Newsletter Open Rate', content: 'This Week: AI Updates, New Features, and a Special Announcement', contentType: 'email', platform: 'email', predictedScore: 68, viralityScore: 25, status: 'pending' },
+      { title: 'Pinterest Pin Description', content: 'Home office setup ideas that boost productivity and creativity. Save for later!', contentType: 'social', platform: 'pinterest', predictedScore: 77, viralityScore: 55, status: 'completed' },
+      { title: 'Press Release Impact', content: 'Tech Startup Raises $10M to Revolutionize Content Creation with AI', contentType: 'press', platform: 'media', predictedScore: 80, viralityScore: 50, status: 'completed' },
+      { title: 'Podcast Episode Title', content: 'How This Founder Built a $1M Business in 12 Months (Exclusive Interview)', contentType: 'podcast', platform: 'spotify', predictedScore: 83, viralityScore: 60, status: 'pending' },
+      { title: 'Reddit Post Potential', content: 'I built an AI tool that writes content in seconds - AMA about the journey', contentType: 'social', platform: 'reddit', predictedScore: 72, viralityScore: 70, status: 'completed' },
+      { title: 'Webinar Registration', content: 'Free Masterclass: Scale Your Content Production 10x with AI', contentType: 'email', platform: 'email', predictedScore: 76, viralityScore: 35, status: 'completed' },
+      { title: 'Twitter Thread Ideas', content: 'I analyzed 1000 viral tweets. Here are the 10 patterns I found...', contentType: 'social', platform: 'twitter', predictedScore: 88, viralityScore: 90, status: 'completed' }
+    ];
+    for (const item of performanceItems) {
+      await prisma.performancePrediction.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Performance Predictions seeded (15 items)');
+  }
+
+  const existingOutlines = await prisma.blogOutline.count();
+  if (existingOutlines === 0) {
+    const blogOutlineItems = [
+      { title: 'Ultimate Guide to AI Marketing', topic: 'AI in marketing automation', targetAudience: 'Marketing managers', keywords: 'AI marketing, automation, martech', estimatedLength: 2500, seoScore: 88, status: 'completed' },
+      { title: 'Remote Work Best Practices', topic: 'Effective remote team management', targetAudience: 'Team leaders', keywords: 'remote work, productivity, team management', estimatedLength: 1800, seoScore: 82, status: 'completed' },
+      { title: 'Content Strategy Framework', topic: 'Building a content marketing strategy', targetAudience: 'Content marketers', keywords: 'content strategy, marketing plan', estimatedLength: 3000, seoScore: 90, status: 'completed' },
+      { title: 'SEO Fundamentals 2024', topic: 'Search engine optimization basics', targetAudience: 'Beginners', keywords: 'SEO, Google ranking, keywords', estimatedLength: 2200, seoScore: 85, status: 'pending' },
+      { title: 'Social Media ROI Guide', topic: 'Measuring social media success', targetAudience: 'Social media managers', keywords: 'social media, ROI, analytics', estimatedLength: 1500, seoScore: 78, status: 'completed' },
+      { title: 'Email Marketing Mastery', topic: 'Email campaign optimization', targetAudience: 'Email marketers', keywords: 'email marketing, conversion, campaigns', estimatedLength: 2000, seoScore: 84, status: 'completed' },
+      { title: 'Startup Funding Guide', topic: 'Raising seed funding', targetAudience: 'Founders', keywords: 'startup funding, VC, seed round', estimatedLength: 2800, seoScore: 86, status: 'pending' },
+      { title: 'Product Launch Playbook', topic: 'Launching a new product', targetAudience: 'Product managers', keywords: 'product launch, go-to-market', estimatedLength: 2400, seoScore: 81, status: 'completed' },
+      { title: 'Customer Retention Strategies', topic: 'Keeping customers engaged', targetAudience: 'Customer success teams', keywords: 'retention, churn, loyalty', estimatedLength: 1700, seoScore: 79, status: 'completed' },
+      { title: 'Data Analytics for Marketers', topic: 'Using data in marketing decisions', targetAudience: 'Marketing analysts', keywords: 'data analytics, marketing metrics', estimatedLength: 2100, seoScore: 83, status: 'pending' },
+      { title: 'Brand Building 101', topic: 'Creating a strong brand identity', targetAudience: 'Brand managers', keywords: 'branding, identity, positioning', estimatedLength: 1900, seoScore: 80, status: 'completed' },
+      { title: 'Video Marketing Strategy', topic: 'Creating video content that converts', targetAudience: 'Video creators', keywords: 'video marketing, YouTube, content', estimatedLength: 2300, seoScore: 87, status: 'completed' },
+      { title: 'Influencer Marketing Guide', topic: 'Working with influencers effectively', targetAudience: 'Marketing teams', keywords: 'influencer marketing, partnerships', estimatedLength: 1600, seoScore: 76, status: 'pending' },
+      { title: 'E-commerce Optimization', topic: 'Improving online store conversions', targetAudience: 'E-commerce owners', keywords: 'e-commerce, conversion, sales', estimatedLength: 2600, seoScore: 89, status: 'completed' },
+      { title: 'Podcast Growth Tactics', topic: 'Growing a podcast audience', targetAudience: 'Podcasters', keywords: 'podcast, growth, audience', estimatedLength: 1400, seoScore: 75, status: 'completed' }
+    ];
+    for (const item of blogOutlineItems) {
+      await prisma.blogOutline.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Blog Outlines seeded (15 items)');
+  }
+
+  const existingNewsletters = await prisma.newsletter.count();
+  if (existingNewsletters === 0) {
+    const newsletterItems = [
+      { title: 'Weekly Tech Digest', topic: 'Technology news and trends', audience: 'Tech enthusiasts', frequency: 'weekly', status: 'completed', subject: 'This Week in Tech: AI, Cloud, and More' },
+      { title: 'Marketing Monday', topic: 'Marketing tips and strategies', audience: 'Marketers', frequency: 'weekly', status: 'completed', subject: 'Marketing Monday: 5 Tips to Boost Engagement' },
+      { title: 'Startup Insider', topic: 'Startup ecosystem updates', audience: 'Founders and investors', frequency: 'weekly', status: 'completed', subject: 'Startup Insider: Funding News & Founder Stories' },
+      { title: 'Product Updates', topic: 'New features and improvements', audience: 'Customers', frequency: 'monthly', status: 'pending', subject: 'What is New: March Product Updates' },
+      { title: 'Industry Insights', topic: 'Market analysis and trends', audience: 'Business leaders', frequency: 'monthly', status: 'completed', subject: 'Industry Insights: Q1 Market Analysis' },
+      { title: 'Creator Corner', topic: 'Content creation tips', audience: 'Content creators', frequency: 'weekly', status: 'completed', subject: 'Creator Corner: Grow Your Audience This Week' },
+      { title: 'Design Digest', topic: 'Design trends and resources', audience: 'Designers', frequency: 'biweekly', status: 'pending', subject: 'Design Digest: Trends, Tools, and Inspiration' },
+      { title: 'Dev Weekly', topic: 'Developer news and tutorials', audience: 'Developers', frequency: 'weekly', status: 'completed', subject: 'Dev Weekly: New Frameworks and Best Practices' },
+      { title: 'Sales Accelerator', topic: 'Sales tips and techniques', audience: 'Sales teams', frequency: 'weekly', status: 'completed', subject: 'Sales Accelerator: Close More Deals This Week' },
+      { title: 'HR Horizons', topic: 'HR and workplace trends', audience: 'HR professionals', frequency: 'monthly', status: 'pending', subject: 'HR Horizons: The Future of Work' },
+      { title: 'Finance Focus', topic: 'Financial news and advice', audience: 'Finance professionals', frequency: 'weekly', status: 'completed', subject: 'Finance Focus: Markets, Trends, and Analysis' },
+      { title: 'Health & Wellness', topic: 'Health tips for professionals', audience: 'Working professionals', frequency: 'weekly', status: 'completed', subject: 'Wellness Wednesday: Balance Work and Life' },
+      { title: 'Ecommerce Edge', topic: 'E-commerce strategies', audience: 'Online retailers', frequency: 'biweekly', status: 'pending', subject: 'Ecommerce Edge: Boost Your Online Sales' },
+      { title: 'Leadership Lens', topic: 'Leadership and management', audience: 'Managers and executives', frequency: 'monthly', status: 'completed', subject: 'Leadership Lens: Inspire Your Team This Month' },
+      { title: 'Customer Success', topic: 'Customer success stories', audience: 'All subscribers', frequency: 'monthly', status: 'completed', subject: 'Success Stories: How Our Customers Win' }
+    ];
+    for (const item of newsletterItems) {
+      await prisma.newsletter.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Newsletters seeded (15 items)');
+  }
+
+  const existingPressReleases = await prisma.pressRelease.count();
+  if (existingPressReleases === 0) {
+    const pressReleaseItems = [
+      { title: 'Series A Funding Announcement', companyName: 'TechCorp Inc', announcement: 'Raised $15M in Series A funding', targetMedia: 'tech', status: 'completed', headline: 'TechCorp Raises $15M to Accelerate AI Development' },
+      { title: 'New Product Launch', companyName: 'InnovateTech', announcement: 'Launching revolutionary AI assistant', targetMedia: 'tech', status: 'completed', headline: 'InnovateTech Unveils AI Assistant That Transforms Productivity' },
+      { title: 'Strategic Partnership', companyName: 'GlobalSoft', announcement: 'Partnership with Microsoft', targetMedia: 'business', status: 'pending', headline: 'GlobalSoft Partners with Microsoft to Expand Cloud Services' },
+      { title: 'Award Recognition', companyName: 'StartupXYZ', announcement: 'Won Best Startup 2024 award', targetMedia: 'industry', status: 'completed', headline: 'StartupXYZ Named Best Startup of 2024' },
+      { title: 'Executive Appointment', companyName: 'Enterprise Solutions', announcement: 'New CEO appointment', targetMedia: 'business', status: 'completed', headline: 'Enterprise Solutions Appoints Industry Veteran as New CEO' },
+      { title: 'Market Expansion', companyName: 'GrowthCo', announcement: 'Expanding to European markets', targetMedia: 'business', status: 'pending', headline: 'GrowthCo Announces European Expansion Plans' },
+      { title: 'Research Findings', companyName: 'DataInsights', announcement: 'Released industry benchmark report', targetMedia: 'industry', status: 'completed', headline: 'DataInsights Reveals Surprising Industry Trends in New Report' },
+      { title: 'Acquisition News', companyName: 'MegaCorp', announcement: 'Acquired competitor for $50M', targetMedia: 'business', status: 'completed', headline: 'MegaCorp Acquires Competitor in $50M Deal' },
+      { title: 'Sustainability Initiative', companyName: 'GreenTech', announcement: 'Carbon neutral commitment', targetMedia: 'general', status: 'pending', headline: 'GreenTech Commits to Carbon Neutrality by 2025' },
+      { title: 'Customer Milestone', companyName: 'SaaS Platform', announcement: 'Reached 1 million users', targetMedia: 'tech', status: 'completed', headline: 'SaaS Platform Celebrates 1 Million User Milestone' },
+      { title: 'Innovation Award', companyName: 'R&D Labs', announcement: 'Received patent for breakthrough technology', targetMedia: 'tech', status: 'completed', headline: 'R&D Labs Patents Revolutionary AI Technology' },
+      { title: 'Conference Announcement', companyName: 'EventTech', announcement: 'Hosting annual industry conference', targetMedia: 'industry', status: 'pending', headline: 'EventTech Announces Biggest Industry Conference Yet' },
+      { title: 'Charity Initiative', companyName: 'CareFirst', announcement: 'Donating $1M to education', targetMedia: 'general', status: 'completed', headline: 'CareFirst Pledges $1M to Support Education' },
+      { title: 'Product Update', companyName: 'AppMakers', announcement: 'Major platform upgrade release', targetMedia: 'tech', status: 'completed', headline: 'AppMakers Releases Game-Changing Platform Update' },
+      { title: 'Industry Report', companyName: 'MarketWatch', announcement: 'Published state of industry report', targetMedia: 'industry', status: 'pending', headline: 'MarketWatch Reveals State of Industry in Comprehensive Report' }
+    ];
+    for (const item of pressReleaseItems) {
+      await prisma.pressRelease.create({ data: { ...item, userId: user.id } });
+    }
+    console.log('✅ Press Releases seeded (15 items)');
+  }
 
   console.log('🎉 Database seeding completed successfully!');
 }

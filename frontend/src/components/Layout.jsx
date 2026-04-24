@@ -4,11 +4,25 @@ import { useAuth } from '../context/AuthContext';
 import {
   FiHome, FiVideo, FiMusic, FiFileText, FiImage, FiGlobe,
   FiAlignLeft, FiSearch, FiShare2, FiMail, FiEdit, FiDollarSign,
-  FiFilm, FiMic, FiHeadphones, FiMenu, FiX, FiLogOut, FiUser
+  FiFilm, FiMic, FiHeadphones, FiMenu, FiX, FiLogOut, FiUser,
+  FiCalendar, FiRepeat, FiShield, FiCamera, FiTrendingUp,
+  FiList, FiSend, FiFileText as FiPress
 } from 'react-icons/fi';
 
-const navItems = [
-  { path: '/', icon: FiHome, label: 'Dashboard' },
+// New AI Content Studio Features
+const newFeatures = [
+  { path: '/calendar', icon: FiCalendar, label: 'Content Calendar', isNew: true },
+  { path: '/repurpose', icon: FiRepeat, label: 'AI Repurposer', isNew: true },
+  { path: '/plagiarism', icon: FiShield, label: 'Plagiarism Check', isNew: true },
+  { path: '/image-suggester', icon: FiCamera, label: 'Image Suggester', isNew: true },
+  { path: '/performance', icon: FiTrendingUp, label: 'Performance AI', isNew: true },
+  { path: '/blog-outlines', icon: FiList, label: 'Blog Outlines', isNew: true },
+  { path: '/newsletters', icon: FiSend, label: 'Newsletters', isNew: true },
+  { path: '/press-releases', icon: FiPress, label: 'Press Releases', isNew: true },
+];
+
+// Existing features
+const existingFeatures = [
   { path: '/videos', icon: FiVideo, label: 'Videos' },
   { path: '/audio', icon: FiMusic, label: 'Audio' },
   { path: '/text', icon: FiFileText, label: 'Text Content' },
@@ -68,7 +82,60 @@ export default function Layout() {
 
         {/* Navigation */}
         <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-8rem)]">
-          {navItems.map(({ path, icon: Icon, label }) => (
+          {/* Dashboard */}
+          <NavLink
+            to="/"
+            onClick={() => setMobileMenuOpen(false)}
+            className={({ isActive }) => `
+              flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+              ${isActive
+                ? 'bg-primary-50 text-primary-600 font-medium'
+                : 'text-gray-600 hover:bg-gray-100'}
+            `}
+          >
+            <FiHome size={20} />
+            {sidebarOpen && <span>Dashboard</span>}
+          </NavLink>
+
+          {/* NEW Features Section */}
+          {sidebarOpen && (
+            <div className="pt-4 pb-2">
+              <div className="flex items-center gap-2 px-3 mb-2">
+                <span className="text-xs font-semibold text-gray-400 uppercase">AI Studio</span>
+                <span className="px-1.5 py-0.5 bg-purple-100 text-purple-600 text-[10px] font-bold rounded">NEW</span>
+              </div>
+            </div>
+          )}
+
+          {newFeatures.map(({ path, icon: Icon, label, isNew }) => (
+            <NavLink
+              key={path}
+              to={path}
+              onClick={() => setMobileMenuOpen(false)}
+              className={({ isActive }) => `
+                flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+                ${isActive
+                  ? 'bg-purple-50 text-purple-600 font-medium'
+                  : 'text-gray-600 hover:bg-gray-100'}
+              `}
+            >
+              <Icon size={20} />
+              {sidebarOpen && (
+                <span className="flex items-center gap-2">
+                  {label}
+                </span>
+              )}
+            </NavLink>
+          ))}
+
+          {/* Divider */}
+          {sidebarOpen && (
+            <div className="pt-4 pb-2">
+              <span className="text-xs font-semibold text-gray-400 uppercase px-3">Content Tools</span>
+            </div>
+          )}
+
+          {existingFeatures.map(({ path, icon: Icon, label }) => (
             <NavLink
               key={path}
               to={path}
@@ -90,12 +157,20 @@ export default function Layout() {
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-white">
           <div className={`flex items-center ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
             {sidebarOpen && (
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                  <FiUser className="text-primary-600" />
+              <NavLink
+                to="/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center overflow-hidden">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <FiUser className="text-primary-600" />
+                  )}
                 </div>
                 <span className="text-sm font-medium truncate max-w-[120px]">{user?.name}</span>
-              </div>
+              </NavLink>
             )}
             <button
               onClick={handleLogout}

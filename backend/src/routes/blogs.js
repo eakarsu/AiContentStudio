@@ -5,13 +5,81 @@ const { generateBlogPost } = require('../services/openrouter');
 
 router.get('/', auth, async (req, res) => {
   try {
-    const blogs = await req.prisma.blogPost.findMany({
+    const { search, status, sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 20 } = req.query;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    const where = { userId: req.userId };
+    if (status) where.status = status;
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { topic: { contains: search, mode: 'insensitive' } },
+        { content: { contains: search, mode: 'insensitive' } },
+        { keywords: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      req.prisma.blogPost.findMany({
+        where,
+        orderBy: { [sortBy]: sortOrder },
+        skip,
+        take: limitNum
+      }),
+      req.prisma.blogPost.count({ where })
+    ]);
+
+    res.json({ items, total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch blog posts' });
+  }
+});
+
+// Export CSV
+router.get('/export/csv', auth, async (req, res) => {
+  try {
+    const { generateCSV } = require('../utils/export');
+    const items = await req.prisma.blogPost.findMany({
       where: { userId: req.userId },
       orderBy: { createdAt: 'desc' }
     });
-    res.json(blogs);
+    const fields = [
+      { label: 'ID', value: 'id' },
+      { label: 'Title', value: 'title' },
+      { label: 'Status', value: 'status' },
+      { label: 'Created', value: 'createdAt' },
+    ];
+    const csv = generateCSV(items, fields.map(f => f.value));
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="blogs-export.csv"`);
+    res.send(csv);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch blog posts' });
+    res.status(500).json({ error: 'Failed to export CSV' });
+  }
+});
+
+// Export PDF
+router.get('/export/pdf', auth, async (req, res) => {
+  try {
+    const { generatePDF } = require('../utils/export');
+    const items = await req.prisma.blogPost.findMany({
+      where: { userId: req.userId },
+      orderBy: { createdAt: 'desc' }
+    });
+    const fields = [
+      { label: 'ID', value: 'id' },
+      { label: 'Title', value: 'title' },
+      { label: 'Status', value: 'status' },
+      { label: 'Created', value: 'createdAt' },
+    ];
+    const pdf = await generatePDF(items, 'Blog Post Export', fields);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="blogs-export.pdf"`);
+    res.send(pdf);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to export PDF' });
   }
 });
 
@@ -57,8 +125,21 @@ router.post('/:id/generate', auth, async (req, res) => {
       data: { status: 'processing' }
     });
 
-    const content = await generateBlogPost(blog.topic, blog.keywords);
-    const excerpt = content.split('\n').slice(0, 3).join(' ').slice(0, 200) + '...';
+    const rawContent = await generateBlogPost(blog.topic, blog.keywords);
+
+    // Clean up and ensure professional formatting
+    let content = rawContent.trim();
+    // Ensure title is present
+    if (!content.startsWith('#')) {
+      content = `# ${blog.title}\n\n${content}`;
+    }
+    // Add metadata footer
+    const wordCount = content.split(/\s+/).length;
+    content += `\n\n---\n*Generated for: "${blog.topic}" | Words: ~${wordCount}${blog.keywords ? ` | Keywords: ${blog.keywords}` : ''}*`;
+
+    // Create a clean excerpt from first meaningful paragraph
+    const lines = content.split('\n').filter(l => l.trim() && !l.startsWith('#') && !l.startsWith('>') && !l.startsWith('---') && !l.startsWith('*'));
+    const excerpt = (lines[0] || '').replace(/\*\*/g, '').slice(0, 200) + '...';
 
     const updated = await req.prisma.blogPost.update({
       where: { id: blog.id },
@@ -71,6 +152,49 @@ router.post('/:id/generate', auth, async (req, res) => {
       data: { status: 'failed' }
     });
     res.status(500).json({ error: 'Failed to generate blog post' });
+  }
+});
+
+// Update blog post
+router.put('/:id', auth, async (req, res) => {
+  try {
+    const { title, topic, keywords, status } = req.body;
+    const updated = await req.prisma.blogPost.updateMany({
+      where: { id: parseInt(req.params.id), userId: req.userId },
+      data: { title, topic, keywords, status }
+    });
+    if (updated.count === 0) return res.status(404).json({ error: 'Blog post not found' });
+    const item = await req.prisma.blogPost.findFirst({ where: { id: parseInt(req.params.id) } });
+    res.json(item);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update blog post' });
+  }
+});
+
+// Bulk delete blog posts
+router.post('/bulk-delete', auth, async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const result = await req.prisma.blogPost.deleteMany({
+      where: { id: { in: ids }, userId: req.userId }
+    });
+    res.json({ message: `${result.count} blog posts deleted` });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to bulk delete blog posts' });
+  }
+});
+
+// Bulk update blog posts
+router.post('/bulk-update', auth, async (req, res) => {
+  try {
+    const { ids, data } = req.body;
+    const result = await req.prisma.blogPost.updateMany({
+      where: { id: { in: ids }, userId: req.userId },
+      data
+    });
+    res.json({ message: `${result.count} blog posts updated` });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to bulk update blog posts' });
   }
 });
 
