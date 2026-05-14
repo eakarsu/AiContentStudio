@@ -95,4 +95,43 @@ export const apiKeyApi = {
   regenerate: (id) => api.post(`/api-keys/${id}/regenerate`),
 };
 
+// Brand voice cloning
+export const brandVoiceApi = {
+  get: () => api.get('/brand-voice'),
+  analyze: (sampleTexts) => api.post('/brand-voice/analyze', { sampleTexts }),
+  apply: (data) => api.post('/brand-voice/apply', data),
+};
+
+// Batch repurpose pipeline
+export const batchRepurposeApi = {
+  start: (data) => api.post('/repurpose/batch', data),
+  status: (jobId) => api.get(`/repurpose/batch/${jobId}`),
+};
+
+// Versioning
+export const versionsApi = {
+  list: (type, id) => api.get(`/versions/${type}/${id}`),
+  restore: (type, id, versionId) => api.post(`/versions/${type}/${id}/restore/${versionId}`),
+};
+
+// Advanced AI endpoints
+export const aiNewApi = {
+  contentCluster: (body) => api.post('/ai/content-cluster', body),
+  repurposeVideo: (body) => api.post('/ai/repurpose-video', body),
+  brandStory: (body) => api.post('/ai/brand-story', body),
+  // Apply pass 4 mechanical additions
+  suggestSeoKeywords: (body) => api.post('/ai/suggest-seo-keywords', body),
+  optimizeForEngagement: (body) => api.post('/ai/optimize-for-engagement', body),
+  generateSocialVariants: (body) => api.post('/ai/generate-social-variants', body),
+  predictPerformance: (body) => api.post('/ai/predict-performance', body),
+  detectPlagiarism: (body) => api.post('/ai/detect-plagiarism', body),
+};
+
+// Comprehensive exports
+export const exportsApi = {
+  contentReportPdf: (params) => api.get('/export/content-report', { params, responseType: 'blob' }),
+  blogsCsv: () => api.get('/export/blogs', { responseType: 'blob' }),
+  calendarCsv: () => api.get('/export/calendar', { responseType: 'blob' }),
+};
+
 export default api;

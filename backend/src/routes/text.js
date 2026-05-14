@@ -3,6 +3,24 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { generateText, rewriteContent } = require('../services/openrouter');
 
+// Snapshot helper — save a version before overwriting
+async function createVersionSnapshot(prisma, contentId, data, userId) {
+  const last = await prisma.contentVersion.findFirst({
+    where: { contentType: 'text', contentId },
+    orderBy: { version: 'desc' },
+    select: { version: true }
+  });
+  await prisma.contentVersion.create({
+    data: {
+      contentType: 'text',
+      contentId,
+      version: (last?.version ?? 0) + 1,
+      data,
+      userId
+    }
+  });
+}
+
 router.get('/', auth, async (req, res) => {
   try {
     const { search, status, sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 20 } = req.query;
@@ -157,19 +175,52 @@ router.post('/:id/generate', auth, async (req, res) => {
   }
 });
 
-// Update text content
+// Update text content (snapshots a version before overwriting)
 router.put('/:id', auth, async (req, res) => {
   try {
+    const id = parseInt(req.params.id);
     const { title, description, prompt, type, tone, status } = req.body;
-    const updated = await req.prisma.textContent.updateMany({
-      where: { id: parseInt(req.params.id), userId: req.userId },
-      data: { title, description, prompt, type, tone, status }
+
+    // Fetch existing record to snapshot it
+    const existing = await req.prisma.textContent.findFirst({
+      where: { id, userId: req.userId }
     });
-    if (updated.count === 0) return res.status(404).json({ error: 'Text content not found' });
-    const item = await req.prisma.textContent.findFirst({ where: { id: parseInt(req.params.id) } });
+    if (!existing) return res.status(404).json({ error: 'Text content not found' });
+
+    // Save version snapshot before overwriting
+    await createVersionSnapshot(req.prisma, id, existing, req.userId);
+
+    const item = await req.prisma.textContent.update({
+      where: { id },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(description !== undefined && { description }),
+        ...(prompt !== undefined && { prompt }),
+        ...(type !== undefined && { type }),
+        ...(tone !== undefined && { tone }),
+        ...(status !== undefined && { status }),
+      }
+    });
     res.json(item);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update text content' });
+  }
+});
+
+// GET /:id/versions — list all versions of a text content item
+router.get('/:id/versions', auth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const item = await req.prisma.textContent.findFirst({ where: { id, userId: req.userId } });
+    if (!item) return res.status(404).json({ error: 'Text content not found' });
+
+    const versions = await req.prisma.contentVersion.findMany({
+      where: { contentType: 'text', contentId: id },
+      orderBy: { version: 'desc' }
+    });
+    res.json(versions);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch versions' });
   }
 });
 

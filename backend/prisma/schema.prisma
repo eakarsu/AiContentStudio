@@ -47,6 +47,8 @@ model User {
   passwordResets     PasswordReset[]
   apiKeys            ApiKey[]
   auditLogs          AuditLog[]
+  contentVersions    ContentVersion[]
+  brandVoice         BrandVoice?
 }
 
 model PasswordReset {
@@ -464,6 +466,9 @@ model PressRelease {
   companyName        String
   announcement       String
   targetMedia        String?  // tech, business, general, industry
+  tone               String?  // professional, urgent, friendly, corporate
+  targetAudience     String?
+  product            String?
   quotes             String?
   content            String?
   headline           String?
@@ -481,4 +486,33 @@ model PressRelease {
   updatedAt          DateTime @updatedAt
   userId             Int
   user               User     @relation(fields: [userId], references: [id])
+}
+
+// Content versioning — snapshot of any content item before overwrite
+model ContentVersion {
+  id          Int      @id @default(autoincrement())
+  contentType String   // video, blog, text, pressRelease, etc.
+  contentId   Int
+  version     Int
+  data        Json     // full snapshot of the content row at the time of version
+  createdAt   DateTime @default(now())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([contentType, contentId])
+}
+
+// Brand voice profile learned from user writing samples
+model BrandVoice {
+  id               Int      @id @default(autoincrement())
+  tone             String?  // formal, casual, authoritative, friendly
+  sentenceLength   String?  // short, medium, long, varied
+  vocabularyLevel  String?  // simple, moderate, advanced
+  commonPhrases    Json?    // array of characteristic phrases
+  styleTraits      Json?    // full extracted style characteristics object
+  sampleTexts      Json?    // the input samples used to build this profile
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  userId           Int      @unique
+  user             User     @relation(fields: [userId], references: [id])
 }

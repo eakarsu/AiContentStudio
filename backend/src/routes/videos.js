@@ -7,6 +7,24 @@ const auth = require('../middleware/auth');
 const { generateVideoContent, generateText } = require('../services/openrouter');
 const { generateTTS, generateImage } = require('../services/openai-media');
 
+// Snapshot helper — save a version before overwriting
+async function createVersionSnapshot(prisma, contentId, data, userId) {
+  const last = await prisma.contentVersion.findFirst({
+    where: { contentType: 'video', contentId },
+    orderBy: { version: 'desc' },
+    select: { version: true }
+  });
+  await prisma.contentVersion.create({
+    data: {
+      contentType: 'video',
+      contentId,
+      version: (last?.version ?? 0) + 1,
+      data,
+      userId
+    }
+  });
+}
+
 const UPLOADS_DIR = path.join(__dirname, '../../public/uploads');
 
 // Get all videos for user
@@ -267,19 +285,52 @@ router.post('/:id/generate', auth, async (req, res) => {
   }
 });
 
-// Update video
+// Update video (snapshots a version before overwriting)
 router.put('/:id', auth, async (req, res) => {
   try {
+    const id = parseInt(req.params.id);
     const { title, description, prompt, style, resolution, status } = req.body;
-    const updated = await req.prisma.video.updateMany({
-      where: { id: parseInt(req.params.id), userId: req.userId },
-      data: { title, description, prompt, style, resolution, status }
+
+    // Fetch existing record to snapshot
+    const existing = await req.prisma.video.findFirst({
+      where: { id, userId: req.userId }
     });
-    if (updated.count === 0) return res.status(404).json({ error: 'Video not found' });
-    const item = await req.prisma.video.findFirst({ where: { id: parseInt(req.params.id) } });
+    if (!existing) return res.status(404).json({ error: 'Video not found' });
+
+    // Save version snapshot before overwriting
+    await createVersionSnapshot(req.prisma, id, existing, req.userId);
+
+    const item = await req.prisma.video.update({
+      where: { id },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(description !== undefined && { description }),
+        ...(prompt !== undefined && { prompt }),
+        ...(style !== undefined && { style }),
+        ...(resolution !== undefined && { resolution }),
+        ...(status !== undefined && { status }),
+      }
+    });
     res.json(item);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update video' });
+  }
+});
+
+// GET /:id/versions — list all versions of a video
+router.get('/:id/versions', auth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const item = await req.prisma.video.findFirst({ where: { id, userId: req.userId } });
+    if (!item) return res.status(404).json({ error: 'Video not found' });
+
+    const versions = await req.prisma.contentVersion.findMany({
+      where: { contentType: 'video', contentId: id },
+      orderBy: { version: 'desc' }
+    });
+    res.json(versions);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch versions' });
   }
 });
 
