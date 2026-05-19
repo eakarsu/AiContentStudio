@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import FeaturePage from './pages/FeaturePage';
 import Profile from './pages/Profile';
 import AdvancedSuite from './pages/AdvancedSuite';
+import CustomViewsPage from './pages/CustomViewsPage';
 
 // // === Batch 02 Gaps & Frontend Mounts ===
 import CfAiDrivenContentBriefGeneration from './pages/CfAiDrivenContentBriefGeneration';
@@ -49,6 +50,7 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
           <Route path="advanced" element={<AdvancedSuite />} />
+          <Route path="custom-views" element={<CustomViewsPage />} />
           {/* Existing Features */}
           <Route path="videos" element={<FeaturePage feature="videos" title="Video Generation" />} />
           <Route path="audio" element={<FeaturePage feature="audio" title="Audio Generation" />} />

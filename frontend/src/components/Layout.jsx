@@ -6,7 +6,7 @@ import {
   FiAlignLeft, FiSearch, FiShare2, FiMail, FiEdit, FiDollarSign,
   FiFilm, FiMic, FiHeadphones, FiMenu, FiX, FiLogOut, FiUser,
   FiCalendar, FiRepeat, FiShield, FiCamera, FiTrendingUp,
-  FiList, FiSend, FiFileText as FiPress, FiZap
+  FiList, FiSend, FiFileText as FiPress, FiZap, FiGrid
 } from 'react-icons/fi';
 
 // New AI Content Studio Features
@@ -96,6 +96,26 @@ export default function Layout() {
           >
             <FiHome size={20} />
             {sidebarOpen && <span>Dashboard</span>}
+          </NavLink>
+
+          {/* Studio Views (Custom) */}
+          <NavLink
+            to="/custom-views"
+            onClick={() => setMobileMenuOpen(false)}
+            className={({ isActive }) => `
+              flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+              ${isActive
+                ? 'bg-emerald-50 text-emerald-600 font-medium'
+                : 'text-gray-600 hover:bg-gray-100'}
+            `}
+          >
+            <FiGrid size={20} />
+            {sidebarOpen && (
+              <span className="flex items-center gap-2">
+                Studio Views
+                <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-600 text-[10px] font-bold rounded">CUSTOM</span>
+              </span>
+            )}
           </NavLink>
 
           {/* Advanced Suite */}

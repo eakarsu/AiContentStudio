@@ -191,6 +191,9 @@ app.use('/api/ai', require('./routes/content-brief'));
 // Comprehensive export routes
 app.use('/api/export', exportsRoutes);
 
+// Custom Studio Views (4 endpoints: calendar, engagement, brief PDF, SEO keywords)
+app.use('/api/custom-views', require('./routes/customViews'));
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'AI Content Studio API is running' });
