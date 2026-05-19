@@ -3,6 +3,94 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { generateContentCalendarSuggestions } = require('../services/openrouter');
 
+// GET /api/calendar/week?start_date= — week view of scheduled content
+router.get('/week', auth, async (req, res) => {
+  try {
+    const { start_date } = req.query;
+    const start = start_date ? new Date(start_date) : new Date();
+    // Normalize to start of day Monday
+    const day = start.getDay();
+    const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+    const weekStart = new Date(start.setDate(diff));
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    const items = await req.prisma.contentCalendar.findMany({
+      where: {
+        userId: req.userId,
+        scheduledDate: { gte: weekStart, lt: weekEnd }
+      },
+      orderBy: { scheduledDate: 'asc' }
+    });
+
+    // Group by day
+    const days = {};
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(d.getDate() + i);
+      const key = d.toISOString().split('T')[0];
+      days[key] = [];
+    }
+    items.forEach(item => {
+      const key = new Date(item.scheduledDate).toISOString().split('T')[0];
+      if (days[key]) days[key].push(item);
+    });
+
+    res.json({ week_start: weekStart.toISOString().split('T')[0], week_end: weekEnd.toISOString().split('T')[0], days });
+  } catch (error) {
+    console.error('Error fetching week view:', error);
+    res.status(500).json({ error: 'Failed to fetch week view' });
+  }
+});
+
+// POST /api/calendar/bulk-schedule — create multiple calendar entries at once
+router.post('/bulk-schedule', auth, async (req, res) => {
+  try {
+    const { entries } = req.body;
+    if (!Array.isArray(entries) || entries.length === 0) {
+      return res.status(400).json({ error: 'entries must be a non-empty array' });
+    }
+
+    const created = [];
+    const errors = [];
+
+    for (const entry of entries) {
+      const { content_id, platform, scheduled_at, title, contentType, topic } = entry;
+      if (!scheduled_at) {
+        errors.push({ entry, error: 'scheduled_at is required' });
+        continue;
+      }
+      try {
+        const item = await req.prisma.contentCalendar.create({
+          data: {
+            title: title || `Scheduled Content`,
+            contentType: contentType || 'post',
+            scheduledDate: new Date(scheduled_at),
+            platform: platform || null,
+            topic: topic || null,
+            userId: req.userId,
+            status: 'pending',
+            ...(content_id ? { contentId: content_id } : {})
+          }
+        });
+        created.push(item);
+      } catch (e) {
+        errors.push({ entry, error: e.message });
+      }
+    }
+
+    res.status(201).json({
+      created: created.length,
+      items: created,
+      errors: errors.length > 0 ? errors : undefined
+    });
+  } catch (error) {
+    console.error('Error bulk scheduling:', error);
+    res.status(500).json({ error: 'Failed to bulk schedule content' });
+  }
+});
+
 // Get all calendar items
 router.get('/', auth, async (req, res) => {
   try {

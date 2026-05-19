@@ -6,6 +6,21 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import FeaturePage from './pages/FeaturePage';
 import Profile from './pages/Profile';
+import AdvancedSuite from './pages/AdvancedSuite';
+import CustomViewsPage from './pages/CustomViewsPage';
+
+// // === Batch 02 Gaps & Frontend Mounts ===
+import CfAiDrivenContentBriefGeneration from './pages/CfAiDrivenContentBriefGeneration';
+import CfAutomatedABTesting from './pages/CfAutomatedABTesting';
+import CfPredictiveContentRoiScoring from './pages/CfPredictiveContentRoiScoring';
+import CfWhiteLabelSaasReady from './pages/CfWhiteLabelSaasReady';
+import CfInfluencerOutreachAutomation from './pages/CfInfluencerOutreachAutomation';
+import GapAllContentRoutesLackDedicatedAiGenerationEndpointsMi from './pages/GapAllContentRoutesLackDedicatedAiGenerationEndpointsMi';
+import GapNoTeamCollaborationOrGranularPermissionManagement from './pages/GapNoTeamCollaborationOrGranularPermissionManagement';
+import GapNoApprovalWorkflow from './pages/GapNoApprovalWorkflow';
+import GapNoRealTimePublishingIntegrationsWordpressWebflowMediu from './pages/GapNoRealTimePublishingIntegrationsWordpressWebflowMediu';
+import GapNoCrossPlatformPublishedContentAnalyticsAggregation from './pages/GapNoCrossPlatformPublishedContentAnalyticsAggregation';
+import GapNoPaymentBillingModule from './pages/GapNoPaymentBillingModule';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -34,6 +49,8 @@ function App() {
         }>
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="advanced" element={<AdvancedSuite />} />
+          <Route path="custom-views" element={<CustomViewsPage />} />
           {/* Existing Features */}
           <Route path="videos" element={<FeaturePage feature="videos" title="Video Generation" />} />
           <Route path="audio" element={<FeaturePage feature="audio" title="Audio Generation" />} />
@@ -60,6 +77,19 @@ function App() {
           <Route path="newsletters" element={<FeaturePage feature="newsletters" title="AI Newsletter Writer" />} />
           <Route path="press-releases" element={<FeaturePage feature="press-releases" title="AI Press Release Writer" />} />
         </Route>
+      
+        {/* // === Batch 02 Gaps & Frontend Mounts === */}
+        <Route path="/cf/ai-driven-content-brief-generation" element={<CfAiDrivenContentBriefGeneration />} />
+        <Route path="/cf/automated-a-b-testing" element={<CfAutomatedABTesting />} />
+        <Route path="/cf/predictive-content-roi-scoring" element={<CfPredictiveContentRoiScoring />} />
+        <Route path="/cf/white-label-saas-ready" element={<CfWhiteLabelSaasReady />} />
+        <Route path="/cf/influencer-outreach-automation" element={<CfInfluencerOutreachAutomation />} />
+        <Route path="/gap/all-content-routes-lack-dedicated-ai-generation-endpoints-mi" element={<GapAllContentRoutesLackDedicatedAiGenerationEndpointsMi />} />
+        <Route path="/gap/no-team-collaboration-or-granular-permission-management" element={<GapNoTeamCollaborationOrGranularPermissionManagement />} />
+        <Route path="/gap/no-approval-workflow" element={<GapNoApprovalWorkflow />} />
+        <Route path="/gap/no-real-time-publishing-integrations-wordpress-webflow-mediu" element={<GapNoRealTimePublishingIntegrationsWordpressWebflowMediu />} />
+        <Route path="/gap/no-cross-platform-published-content-analytics-aggregation" element={<GapNoCrossPlatformPublishedContentAnalyticsAggregation />} />
+        <Route path="/gap/no-payment-billing-module" element={<GapNoPaymentBillingModule />} />
       </Routes>
     </ErrorBoundary>
   );

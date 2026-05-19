@@ -251,6 +251,19 @@ export default function Dashboard() {
         </p>
       </div>
 
+      {/* Advanced Suite quick-link */}
+      <div
+        onClick={() => navigate('/advanced')}
+        className="mb-6 cursor-pointer bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-6 flex items-center justify-between hover:shadow-xl transition-shadow"
+      >
+        <div>
+          <div className="text-xs uppercase opacity-80 tracking-wider">Advanced Suite</div>
+          <div className="text-2xl font-bold mt-1">Brand Voice · Batch Repurpose · Cluster · Versions · Exports · API Keys</div>
+          <div className="text-sm opacity-90 mt-1">8 NEW AI features + analytics + scheduling + multi-language workflow</div>
+        </div>
+        <FiArrowRight className="text-2xl" />
+      </div>
+
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         {[

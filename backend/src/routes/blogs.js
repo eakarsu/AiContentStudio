@@ -3,6 +3,24 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { generateBlogPost } = require('../services/openrouter');
 
+// Snapshot helper — save a version before overwriting
+async function createVersionSnapshot(prisma, contentId, data, userId) {
+  const last = await prisma.contentVersion.findFirst({
+    where: { contentType: 'blog', contentId },
+    orderBy: { version: 'desc' },
+    select: { version: true }
+  });
+  await prisma.contentVersion.create({
+    data: {
+      contentType: 'blog',
+      contentId,
+      version: (last?.version ?? 0) + 1,
+      data,
+      userId
+    }
+  });
+}
+
 router.get('/', auth, async (req, res) => {
   try {
     const { search, status, sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 20 } = req.query;
@@ -155,19 +173,52 @@ router.post('/:id/generate', auth, async (req, res) => {
   }
 });
 
-// Update blog post
+// Update blog post (snapshots a version before overwriting)
 router.put('/:id', auth, async (req, res) => {
   try {
-    const { title, topic, keywords, status } = req.body;
-    const updated = await req.prisma.blogPost.updateMany({
-      where: { id: parseInt(req.params.id), userId: req.userId },
-      data: { title, topic, keywords, status }
+    const id = parseInt(req.params.id);
+    const { title, topic, keywords, status, content, excerpt } = req.body;
+
+    // Fetch existing record to snapshot
+    const existing = await req.prisma.blogPost.findFirst({
+      where: { id, userId: req.userId }
     });
-    if (updated.count === 0) return res.status(404).json({ error: 'Blog post not found' });
-    const item = await req.prisma.blogPost.findFirst({ where: { id: parseInt(req.params.id) } });
+    if (!existing) return res.status(404).json({ error: 'Blog post not found' });
+
+    // Save version snapshot before overwriting
+    await createVersionSnapshot(req.prisma, id, existing, req.userId);
+
+    const item = await req.prisma.blogPost.update({
+      where: { id },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(topic !== undefined && { topic }),
+        ...(keywords !== undefined && { keywords }),
+        ...(status !== undefined && { status }),
+        ...(content !== undefined && { content }),
+        ...(excerpt !== undefined && { excerpt }),
+      }
+    });
     res.json(item);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update blog post' });
+  }
+});
+
+// GET /:id/versions — list all versions of a blog post
+router.get('/:id/versions', auth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const item = await req.prisma.blogPost.findFirst({ where: { id, userId: req.userId } });
+    if (!item) return res.status(404).json({ error: 'Blog post not found' });
+
+    const versions = await req.prisma.contentVersion.findMany({
+      where: { contentType: 'blog', contentId: id },
+      orderBy: { version: 'desc' }
+    });
+    res.json(versions);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch versions' });
   }
 });
 

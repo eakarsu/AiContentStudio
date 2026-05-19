@@ -12,7 +12,7 @@ const openai = new OpenAI({
 // Generate text content using OpenRouter
 async function generateText(prompt, options = {}) {
   const {
-    model = process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5',
+    model = process.env.OPENROUTER_MODEL || 'anthropic/claude-3-5-sonnet-20241022',
     maxTokens = 2000,
     temperature = 0.7,
     systemPrompt = 'You are a helpful AI assistant that creates high-quality content.'
