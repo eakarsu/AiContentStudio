@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { generateText } = require('../services/openrouter');
 
-const MODEL = 'anthropic/claude-3-5-sonnet-20241022';
+const MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5';
 
 // POST /api/ai/content-cluster
 // {topic, num_pieces} → pillar page + supporting articles + social posts plan

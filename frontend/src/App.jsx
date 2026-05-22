@@ -8,6 +8,7 @@ import FeaturePage from './pages/FeaturePage';
 import Profile from './pages/Profile';
 import AdvancedSuite from './pages/AdvancedSuite';
 import CustomViewsPage from './pages/CustomViewsPage';
+import EditorialApprovalRisk from './pages/EditorialApprovalRisk';
 
 // // === Batch 02 Gaps & Frontend Mounts ===
 import CfAiDrivenContentBriefGeneration from './pages/CfAiDrivenContentBriefGeneration';
@@ -21,6 +22,9 @@ import GapNoApprovalWorkflow from './pages/GapNoApprovalWorkflow';
 import GapNoRealTimePublishingIntegrationsWordpressWebflowMediu from './pages/GapNoRealTimePublishingIntegrationsWordpressWebflowMediu';
 import GapNoCrossPlatformPublishedContentAnalyticsAggregation from './pages/GapNoCrossPlatformPublishedContentAnalyticsAggregation';
 import GapNoPaymentBillingModule from './pages/GapNoPaymentBillingModule';
+
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -41,6 +45,9 @@ function App() {
   return (
     <ErrorBoundary>
       <Routes>
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/" element={
           <PrivateRoute>
@@ -51,6 +58,7 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="advanced" element={<AdvancedSuite />} />
           <Route path="custom-views" element={<CustomViewsPage />} />
+          <Route path="editorial-approval-risk" element={<EditorialApprovalRisk />} />
           {/* Existing Features */}
           <Route path="videos" element={<FeaturePage feature="videos" title="Video Generation" />} />
           <Route path="audio" element={<FeaturePage feature="audio" title="Audio Generation" />} />

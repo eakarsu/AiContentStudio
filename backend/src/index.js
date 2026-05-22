@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { PrismaClient } = require('@prisma/client');
-const rateLimit = require('express-rate-limit');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 
 // Existing routes
 const authRoutes = require('./routes/auth');
@@ -79,7 +79,7 @@ const aiLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'AI generation rate limit exceeded — max 30 requests per minute. Please wait before trying again.' },
   // Key by user IP; if you have auth middleware earlier you can key by req.userId instead
-  keyGenerator: (req) => req.ip
+  keyGenerator: (req) => ipKeyGenerator(req.ip)
 });
 
 // Apply AI limiter to every /generate, /analyze, /apply, and /batch endpoint across all feature routes
@@ -193,6 +193,7 @@ app.use('/api/export', exportsRoutes);
 
 // Custom Studio Views (4 endpoints: calendar, engagement, brief PDF, SEO keywords)
 app.use('/api/custom-views', require('./routes/customViews'));
+app.use('/api/editorial-approval-risk', require('./routes/editorialApprovalRisk'));
 
 // Health check
 app.get('/api/health', (req, res) => {
