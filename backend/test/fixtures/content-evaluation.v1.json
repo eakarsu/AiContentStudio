@@ -1,0 +1,15 @@
+{
+  "datasetVersion": "content-evaluation.v1",
+  "limits": { "quality": 0.9, "timingErrorMs": 100, "layoutScore": 0.9, "accessibility": 0.9, "brandScore": 0.9, "translationScore": 0.85 },
+  "baseline": { "quality": 1, "timingErrorMs": 0, "layoutScore": 1, "accessibility": 1, "brandScore": 1, "translationScore": 1, "deterministicExport": true },
+  "cases": [
+    { "name": "accepted", "overrides": {}, "accepted": true },
+    { "name": "quality", "overrides": { "quality": 0.4 }, "failure": "quality" },
+    { "name": "timing", "overrides": { "timingErrorMs": 101 }, "failure": "timing" },
+    { "name": "layout", "overrides": { "layoutScore": 0.4 }, "failure": "layout" },
+    { "name": "accessibility", "overrides": { "accessibility": 0.4 }, "failure": "accessibility" },
+    { "name": "brand", "overrides": { "brandScore": 0.4 }, "failure": "brand" },
+    { "name": "multilingual", "overrides": { "translationScore": 0.4 }, "failure": "multilingual" },
+    { "name": "deterministic-export", "overrides": { "deterministicExport": false }, "failure": "deterministic_export" }
+  ]
+}

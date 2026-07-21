@@ -7,9 +7,11 @@
     "start": "node src/index.js",
     "dev": "nodemon --delay 2 --signal SIGTERM src/index.js",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
+    "db:push": "prisma migrate deploy",
     "db:seed": "node src/seed.js",
-    "db:reset": "prisma db push --force-reset && node src/seed.js"
+    "db:deploy": "prisma migrate deploy",
+    "migrate": "node scripts/migrate.js",
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "@prisma/client": "^5.10.0",

@@ -1,6 +1,7 @@
 require('dotenv').config({ path: '../.env' });
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+const crypto = require('node:crypto');
 
 const prisma = new PrismaClient();
 
@@ -9,13 +10,15 @@ async function seed() {
 
   // Create demo user
   const hashedPassword = await bcrypt.hash(process.env.DEMO_PASSWORD || 'Demo123!', 10);
+  const tenantId = process.env.SEED_TENANT_ID || crypto.randomUUID();
   const user = await prisma.user.upsert({
     where: { email: process.env.DEMO_EMAIL || 'demo@aicontentstudio.com' },
     update: {},
     create: {
       email: process.env.DEMO_EMAIL || 'demo@aicontentstudio.com',
       password: hashedPassword,
-      name: 'Demo User'
+      name: 'Demo User',
+      tenantId
     }
   });
   console.log('✅ Demo user created');
@@ -671,3 +674,4 @@ seed()
   .finally(async () => {
     await prisma.$disconnect();
   });
+if (process.env.ALLOW_DEMO_SEED !== 'true') { console.error('Demo seed refused; set ALLOW_DEMO_SEED=true explicitly.'); process.exit(64); }

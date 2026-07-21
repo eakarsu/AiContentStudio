@@ -91,3 +91,6 @@ token.txt
 id_rsa*
 **/credentials*.json
 **/serviceAccount*.json
+
+# Keep the non-secret configuration contract versioned.
+!.env.example

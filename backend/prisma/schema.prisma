@@ -13,6 +13,7 @@ model User {
   password         String
   name             String
   role             String   @default("editor") // admin, editor, viewer
+  tenantId         String?
   avatar           String?
   twoFactorSecret  String?
   twoFactorEnabled Boolean  @default(false)

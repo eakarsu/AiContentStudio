@@ -19,15 +19,11 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 }, fileFilt
   cb(null, allowed.includes(path.extname(file.originalname).toLowerCase()));
 }});
 
-// Ensure avatars directory exists
-const fs = require('fs');
-const avatarDir = path.join(__dirname, '../../public/uploads/avatars');
-if (!fs.existsSync(avatarDir)) fs.mkdirSync(avatarDir, { recursive: true });
-
 // Register
 router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
+    if (!email || !name || typeof password !== 'string' || password.length < 12) return res.status(422).json({ error: 'Valid email, name, and password of at least 12 characters are required' });
     const prisma = req.prisma;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -37,10 +33,10 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { email, password: hashedPassword, name }
+      data: { email, password: hashedPassword, name, tenantId: crypto.randomUUID(), role: 'editor' }
     });
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id, tenantId: user.tenantId, role: user.role }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
     res.status(201).json({
       user: { id: user.id, email: user.email, name: user.name, role: user.role, avatar: user.avatar },
@@ -67,6 +63,7 @@ router.post('/login', async (req, res) => {
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+    if (!user.tenantId) return res.status(403).json({ error: 'Account has not been assigned to a tenant' });
 
     // Check 2FA
     if (user.twoFactorEnabled) {
@@ -90,7 +87,7 @@ router.post('/login', async (req, res) => {
       data: { lastLogin: new Date(), loginCount: { increment: 1 } }
     });
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id, tenantId: user.tenantId, role: user.role }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
     res.json({
       user: { id: user.id, email: user.email, name: user.name, role: user.role, avatar: user.avatar },
@@ -116,12 +113,13 @@ router.get('/me', async (req, res) => {
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, email: true, name: true, role: true, avatar: true, twoFactorEnabled: true, lastLogin: true, loginCount: true, createdAt: true }
+      select: { id: true, email: true, name: true, role: true, tenantId: true, avatar: true, twoFactorEnabled: true, lastLogin: true, loginCount: true, createdAt: true }
     });
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    if (user.tenantId !== decoded.tenantId) return res.status(403).json({ error: 'Tenant identity mismatch' });
 
     res.json({ user });
   } catch (error) {
@@ -136,8 +134,8 @@ router.put('/change-password', authMiddleware, async (req, res) => {
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ error: 'Current and new password required' });
     }
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    if (newPassword.length < 12) {
+      return res.status(400).json({ error: 'New password must be at least 12 characters' });
     }
 
     const user = await req.prisma.user.findUnique({ where: { id: req.userId } });
@@ -213,9 +211,7 @@ router.post('/forgot-password', async (req, res) => {
 
     // In a real app, you'd send an email here
     // For demo purposes, we'll return the token
-    console.log(`Password reset token for ${email}: ${token}`);
-
-    res.json({ message: 'If the email exists, a reset link has been sent', token }); // Remove token from response in production
+    res.json({ message: 'If the email exists, a reset link has been sent', delivery: 'out_of_band' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to process request' });
   }
@@ -228,8 +224,8 @@ router.post('/reset-password', async (req, res) => {
     if (!token || !newPassword) {
       return res.status(400).json({ error: 'Token and new password required' });
     }
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    if (newPassword.length < 12) {
+      return res.status(400).json({ error: 'Password must be at least 12 characters' });
     }
 
     const resetRecord = await req.prisma.passwordReset.findUnique({ where: { token } });

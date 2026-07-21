@@ -1,0 +1,7 @@
+# Authoritative content workflow runbook
+
+Install from lockfiles, generate the Prisma client, copy `.env.example` to `.env`, replace its example secrets, and run `npm run migrate` in `backend/`. Provision upload directories separately if legacy profile uploads are enabled. `./start.sh backend` never installs, creates directories, pushes schema, seeds, or kills processes. When CORS is otherwise unconfigured, the launcher permits only the loopback origin derived from `FRONTEND_PORT`. Fresh demo seeds receive `SEED_TENANT_ID` or a generated tenant identity so the persisted account can complete the real login/session flow.
+
+Use `/api/authoritative/content`. Assets need SHA-256 checksums plus license, consent, and provenance evidence; timelines/assets are editable only in editable states and every edit or transition creates a version. Rights and moderation acceptance plus independent review are required before approval, and publishing requires an approval and a confirmed publish receipt. Provider usage is validated and stored with each delivery. Evaluation thresholds are deployment-owned rather than accepted from callers.
+
+Monitor render/publish queue age, retries, dead letters, rights expiry, moderation flags, accessibility/brand/multilingual failures, and deterministic-export regressions. Fix the source or adapter before replay and retain the idempotency key. Legacy/generated/direct-generation endpoints are quarantined.
