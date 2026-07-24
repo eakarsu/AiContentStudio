@@ -59,8 +59,8 @@ export default function Login() {
       setPassword(credentials.password);
       toast.success('Demo credentials populated!');
     } catch (error) {
-      setEmail('demo@aicontentstudio.com');
-      setPassword('Demo123!');
+      setEmail(import.meta.env.VITE_DEMO_EMAIL || '');
+      setPassword(import.meta.env.VITE_DEMO_PASSWORD || '');
       toast.success('Demo credentials populated!');
     }
   };
