@@ -49,6 +49,12 @@ CREATE TABLE IF NOT EXISTS content_evaluations (
  fixture_version TEXT NOT NULL, metrics JSONB NOT NULL, limits JSONB NOT NULL, accepted BOOLEAN NOT NULL, failures JSONB NOT NULL,
  result_hash CHAR(64) NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS content_ai_results (
+ id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, actor_id TEXT NOT NULL, feature TEXT NOT NULL,
+ input JSONB NOT NULL, output TEXT NOT NULL, model TEXT NOT NULL,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS content_ai_results_tenant_created_idx ON content_ai_results(tenant_id,created_at DESC);
 CREATE INDEX IF NOT EXISTS content_projects_tenant_idx ON content_projects(tenant_id,id);
 CREATE INDEX IF NOT EXISTS content_assets_tenant_project_idx ON content_assets(tenant_id,project_id);
 CREATE INDEX IF NOT EXISTS content_deliveries_dispatch_idx ON content_deliveries(tenant_id,status,next_attempt_at);

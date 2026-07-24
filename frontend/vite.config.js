@@ -14,14 +14,16 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    host: process.env.HOST || '127.0.0.1',
+    port: Number(process.env.FRONTEND_PORT || 3000),
+    strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:5001',
+        target: `http://127.0.0.1:${process.env.PORT || process.env.BACKEND_PORT || 5001}`,
         changeOrigin: true
       },
       '/uploads': {
-        target: 'http://localhost:5001',
+        target: `http://127.0.0.1:${process.env.PORT || process.env.BACKEND_PORT || 5001}`,
         changeOrigin: true
       }
     }

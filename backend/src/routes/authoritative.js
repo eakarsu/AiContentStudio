@@ -9,6 +9,21 @@ const router = express.Router();
 const actor = req => ({ tenantId: req.tenantId, role: req.userRole });
 const permit = (req, action) => requireScope(actor(req), req.tenantId, action);
 const rows = (req, sql, ...args) => req.prisma.$queryRawUnsafe(sql, ...args);
+async function openRouterBrief(prompt) {
+  const base = String(process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1').replace(/\/+$/, '');
+  const model = process.env.OPENROUTER_MODEL;
+  if (!process.env.OPENROUTER_API_KEY || !model) throw new Error('openrouter_configuration_required');
+  const response = await fetch(`${base}/chat/completions`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`, 'Content-Type': 'application/json', 'X-Title': 'AiContentStudio governed brief' },
+    body: JSON.stringify({ model, messages: [{ role: 'system', content: 'You are a content operations assistant. Produce a concise, actionable brief and clearly state assumptions.' }, { role: 'user', content: prompt }], temperature: 0.3 })
+  });
+  if (!response.ok) throw new Error(`openrouter_http_${response.status}`);
+  const data = await response.json();
+  const output = String(data?.choices?.[0]?.message?.content || '').trim();
+  if (!output) throw new Error('openrouter_empty_response');
+  return { output, model: data.model || model };
+}
 
 const evaluationLimits = () => ({
   quality: Number(process.env.CONTENT_MIN_QUALITY || 0.9),
@@ -60,6 +75,21 @@ router.post('/projects', async (req, res, next) => {
       await audit(tx, req, 'project.created', 'content_project', id, null, value.projectHash);
     });
     res.status(201).json({ id, state: value.state, version: 1, projectHash: value.projectHash });
+  } catch (error) { next(error); }
+});
+
+router.post('/ai-brief', async (req, res, next) => {
+  try {
+    permit(req, 'edit');
+    const prompt = String(req.body?.prompt || '').trim();
+    if (prompt.length < 20) throw new Error('prompt_required');
+    const result = await openRouterBrief(prompt);
+    const id = crypto.randomUUID();
+    await req.prisma.$executeRawUnsafe(
+      'INSERT INTO content_ai_results(id,tenant_id,actor_id,feature,input,output,model) VALUES($1,$2,$3,$4,$5::jsonb,$6,$7)',
+      id, req.tenantId, String(req.userId), 'content-brief', JSON.stringify({ prompt }), result.output, result.model
+    );
+    res.json({ id, brief: result.output, model: result.model });
   } catch (error) { next(error); }
 });
 
