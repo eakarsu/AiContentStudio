@@ -13,7 +13,7 @@ async function seed() {
   const tenantId = process.env.SEED_TENANT_ID || crypto.randomUUID();
   const user = await prisma.user.upsert({
     where: { email: process.env.DEMO_EMAIL || 'demo@aicontentstudio.com' },
-    update: {},
+    update: { password: hashedPassword, name: 'Demo User' },
     create: {
       email: process.env.DEMO_EMAIL || 'demo@aicontentstudio.com',
       password: hashedPassword,

@@ -61,6 +61,10 @@ source "$ROOT/.env"
 set +a
 frontend_port="${FRONTEND_PORT:-5173}"
 export CORS_ORIGINS="${CORS_ORIGINS:-http://127.0.0.1:$frontend_port}"
+if [[ "${NODE_ENV:-development}" != production && "${ENABLE_DEMO_CREDENTIAL_AUTOFILL:-true}" == true ]]; then
+  npm --prefix "$ROOT/backend" run migrate
+  npm --prefix "$ROOT/backend" run db:seed
+fi
 case "${1:-start}" in
   start)
     (cd "$ROOT/backend" && exec npm start) & backend_pid=$!
