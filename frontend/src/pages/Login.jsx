@@ -175,7 +175,7 @@ export default function Login() {
             className="w-full mb-6 py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
           >
             <FiZap />
-            Quick Demo Login (Auto-fill Credentials)
+            Auto Fill Demo Credentials
           </button>
 
           <div className="relative mb-6">
